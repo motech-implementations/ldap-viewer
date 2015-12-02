@@ -1,11 +1,13 @@
 package org.motechproject.nms.ldapbrowser.ldap;
 
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
 public class LdapUser {
 
     @NotBlank
     private String username;
+    @Length(min = 3)
     private String password;
     private String name;
     private String email;

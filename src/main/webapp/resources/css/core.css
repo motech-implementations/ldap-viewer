@@ -21,3 +21,7 @@ body {
 .bottom10 {
     margin-bottom: 10px;
 }
+
+td.details-control {
+    cursor: pointer;
+}

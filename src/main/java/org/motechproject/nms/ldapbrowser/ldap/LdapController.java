@@ -46,6 +46,7 @@ class LdapController {
     public ModelAndView createUserPage() {
         ModelAndView mav = new ModelAndView("ldap/user");
         mav.getModelMap().put("user", new LdapUser());
+        mav.getModelMap().put("edit", false);
         addRegionDate(mav);
 
         return mav;
@@ -57,6 +58,7 @@ class LdapController {
 
         ModelAndView mav = new ModelAndView("ldap/user");
         mav.getModelMap().put("user", user);
+        mav.getModelMap().put("edit", true);
         addRegionDate(mav);
 
         return mav;
@@ -73,6 +75,13 @@ class LdapController {
             MessageHelper.addSuccessAttribute(ra, "user.saved");
             return new ModelAndView("redirect:/");
         }
+    }
+
+    @RequestMapping(value = "ldap/user/{username}/delete", method = RequestMethod.GET)
+    public String deleteUser(@PathVariable String username, RedirectAttributes ra) {
+        ldapUserService.deleteUser(username);
+        MessageHelper.addSuccessAttribute(ra, "user.deleted");
+        return "redirect:/";
     }
 
     private void addRegionDate(ModelAndView mav) {

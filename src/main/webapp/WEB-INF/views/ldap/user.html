@@ -24,7 +24,8 @@
     <form method="post" th:action="@{/ldap/user}" th:object="${user}">
         <div class="form-group">
             <label for="username" th:utext="#{user.username}"></label>
-            <input type="text" class="form-control" id="username" placeholder="Username" th:field="*{username}"/>
+            <input type="text" class="form-control" id="username" placeholder="Username" th:field="*{username}"
+                   th:attrappend="readonly=${edit ? 'true' : 'false'}"/>
         </div>
         <div class="form-group">
             <label for="name" th:utext="#{user.password}"></label>
@@ -52,8 +53,11 @@
         </div>
         <div class="form-group">
             <div class="col-lg-offset-2 col-lg-10">
-                <button type="submit" class="btn btn-default" th:utext="#{save}"></button>
-                <a th:href="@{/}" class="btn btn-info" role="button" th:utext="#{cancel}"></a>
+                <button type="submit" class="btn btn-info" th:utext="#{save}"></button>
+                <a th:href="@{/}" class="btn btn-default" role="button" th:utext="#{cancel}"></a>
+                <a th:if="${edit}" th:href="@{/ldap/user/{username}/delete(username=${user.username})}"
+                   class="btn btn-danger" role="button" th:utext="#{delete}"
+                   th:onclick="'return confirm(\'' + #{user.delete.confirm} + '\');'"></a>
             </div>
         </div>
     </form>

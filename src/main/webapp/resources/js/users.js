@@ -1,5 +1,5 @@
 $(document).ready( function () {
-    $('#user_table').DataTable({
+    var table = $('#user_table').DataTable({
         "processing": true,
         "serverSide": true,
         "ajax": {
@@ -11,6 +11,12 @@ $(document).ready( function () {
             }
         },
         columns: [
+             {
+                "className":      'details-control',
+                "orderable":      false,
+                "data":           '',
+                "defaultContent": '<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>'
+            },
             { "data": "username"},
             { "data": "name"},
             { "data": "email"},
@@ -18,6 +24,13 @@ $(document).ready( function () {
             { "data": "state"},
             { "data": "district"}
         ]
+    });
+
+   $('#user_table tbody').on('click', 'td.details-control', function () {
+        var tr = $(this).closest('tr');
+        var row = table.row( tr );
+
+        window.location.href = 'ldap/user/' + row.data().username;
     });
 } );
 

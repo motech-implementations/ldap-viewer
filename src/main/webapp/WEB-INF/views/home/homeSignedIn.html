@@ -22,12 +22,16 @@
         <div th:replace="fragments/alert :: alert (type=${#strings.toLowerCase(message.type)}, message=#{${message.message}(${#authentication.name})})">&nbsp;</div>
     </th:block>
     <div class="bottom10">
-        <a th:href="@{/ldap/user}" class="btn btn-info" role="button" th:utext="#{user.new}"></a>
+        <a th:href="@{/ldap/user}" class="btn btn-info" role="button">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            <span th:utext="#{user.new}"></span>
+        </a>
     </div>
     <div>
         <table id="user_table" class="display">
             <thead>
             <tr>
+                <th></th>
                 <th th:utext="#{user.username}"></th>
                 <th th:utext="#{user.name}"></th>
                 <th th:utext="#{user.email}"></th>

@@ -2,6 +2,7 @@ package org.motechproject.nms.ldapbrowser.ldap;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -62,7 +63,15 @@ public class DummyLdapService implements LdapUserService {
 
     @Override
     public LdapUser saveUser(LdapUser user) {
-        deleteUser(user.getUsername());
+        LdapUser existing = getUser(user.getUsername());
+        if (existing != null){
+            // preserve password if not modified
+            if (StringUtils.isEmpty(user.getPassword())) {
+                user.setPassword(existing.getPassword());
+            }
+            deleteUser(user.getUsername());
+        }
+
         users.add(user);
         return user;
     }
