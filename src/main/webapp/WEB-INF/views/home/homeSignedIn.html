@@ -21,23 +21,25 @@
         <!-- /* The message code is returned from the @Controller */ -->
         <div th:replace="fragments/alert :: alert (type=${#strings.toLowerCase(message.type)}, message=#{${message.message}(${#authentication.name})})">&nbsp;</div>
     </th:block>
-    <div>
+    <div class="bottom10">
         <a th:href="@{/ldap/user}" class="btn btn-info" role="button" th:utext="#{user.new}"></a>
     </div>
-    <table id="user_table" class="display">
-        <thead>
-        <tr>
-            <th th:utext="#{user.username}"></th>
-            <th th:utext="#{user.name}"></th>
-            <th th:utext="#{user.email}"></th>
-            <th th:utext="#{user.admin}"></th>
-            <th th:utext="#{user.state}"></th>
-            <th th:utext="#{user.district}"></th>
-        </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+    <div>
+        <table id="user_table" class="display">
+            <thead>
+            <tr>
+                <th th:utext="#{user.username}"></th>
+                <th th:utext="#{user.name}"></th>
+                <th th:utext="#{user.email}"></th>
+                <th th:utext="#{user.admin}"></th>
+                <th th:utext="#{user.state}"></th>
+                <th th:utext="#{user.district}"></th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
 </div>
 </body>
 </html>
