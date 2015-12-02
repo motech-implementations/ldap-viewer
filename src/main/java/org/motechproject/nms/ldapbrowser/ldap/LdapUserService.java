@@ -4,13 +4,13 @@ import java.util.List;
 
 public interface LdapUserService {
 
-    User getUser(String username);
+    LdapUser getUser(String username);
 
-    List<User> getUsers(UsersQuery query);
+    List<LdapUser> getUsers(UsersQuery query);
 
     long countUsers(UsersQuery query);
 
-    User saveUser(User user);
+    LdapUser saveUser(LdapUser user);
 
     void deleteUser(String username);
 }

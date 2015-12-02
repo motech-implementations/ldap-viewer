@@ -2,7 +2,7 @@ package org.motechproject.nms.ldapbrowser.ldap;
 
 import org.hibernate.validator.constraints.NotBlank;
 
-public class User {
+public class LdapUser {
 
     @NotBlank
     private String username;
@@ -13,10 +13,10 @@ public class User {
     private String district;
     private boolean admin;
 
-    public User() {
+    public LdapUser() {
     }
 
-    public User(String username, String password, String name, String email, String state, String district, boolean admin) {
+    public LdapUser(String username, String password, String name, String email, String state, String district, boolean admin) {
         this.username = username;
         this.password = password;
         this.name = name;

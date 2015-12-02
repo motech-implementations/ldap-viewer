@@ -9,7 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 
-import org.motechproject.nms.ldapbrowser.account.UserService;
+import org.motechproject.nms.ldapbrowser.ldap.UserService;
 
 @Configuration
 @EnableWebMvcSecurity
@@ -44,7 +44,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
             .csrf()
                 .disable()
             .authorizeRequests()
-                .antMatchers("/", "/favicon.ico", "/resources/**", "/signup").permitAll()
+                .antMatchers("/", "/favicon.ico", "/resources/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
             .formLogin()

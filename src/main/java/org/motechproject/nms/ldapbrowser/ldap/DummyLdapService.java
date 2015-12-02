@@ -1,7 +1,10 @@
 package org.motechproject.nms.ldapbrowser.ldap;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -11,20 +14,30 @@ import java.util.Objects;
 @Service
 public class DummyLdapService implements LdapUserService {
 
-    private static final List<User> USERS = new LinkedList<>();
+    private final List<LdapUser> users = new LinkedList<>();
 
-    static {
-        USERS.add(new User("admin", "pass", "National Admin", "nadmin@motechproject.org", null, null, true));
-        USERS.add(new User("nviewer", "pass", "National Viewer", "nviewer@motechproject.org", null, null, false));
-        USERS.add(new User("sadmin", "pass", "Pomorskie Admin", "sadmin@motechproject.org", "Pomorskie", null, false));
-        USERS.add(new User("sviewer", "pass", "Pomorskie Viewer", "sviewer@motechproject.org", "Pomorskie", null, false));
-        USERS.add(new User("dadmin", "pass", "District Admin", "dadmin@motechproject.org", "Pomorskie", "Gdynia", false));
-        USERS.add(new User("dviewer", "pass", "District Viewer", "dviewer@motechproject.org", "Pomorskie", "Gdynia", false));
+    @Inject
+    private PasswordEncoder passwordEncoder;
+
+    @PostConstruct
+    public void init() {
+        users.add(new LdapUser("admin", passwordEncoder.encode("password"), "National Admin", "nadmin@motechproject.org",
+                null, null, true));
+        users.add(new LdapUser("nviewer", passwordEncoder.encode("password"), "National Viewer", "nviewer@motechproject.org",
+                null, null, false));
+        users.add(new LdapUser("sadmin", passwordEncoder.encode("password"), "Pomorskie Admin", "sadmin@motechproject.org",
+                "Pomorskie", null, false));
+        users.add(new LdapUser("sviewer", passwordEncoder.encode("password"), "Pomorskie Viewer", "sviewer@motechproject.org",
+                "Pomorskie", null, false));
+        users.add(new LdapUser("dadmin", passwordEncoder.encode("password"), "District Admin", "dadmin@motechproject.org",
+                "Pomorskie", "Gdynia", false));
+        users.add(new LdapUser("dviewer", passwordEncoder.encode("password"), "District Viewer", "dviewer@motechproject.org",
+                "Pomorskie", "Gdynia", false));
     }
 
     @Override
-    public User getUser(String username) {
-        for (User user : USERS) {
+    public LdapUser getUser(String username) {
+        for (LdapUser user : users) {
             if (Objects.equals(username, user.getUsername())) {
                 return user;
             }
@@ -33,32 +46,32 @@ public class DummyLdapService implements LdapUserService {
     }
 
     @Override
-    public List<User> getUsers(UsersQuery query) {
-        List<User> result = new ArrayList<>(USERS);
+    public List<LdapUser> getUsers(UsersQuery query) {
+        List<LdapUser> result = new ArrayList<>(users);
         //filter(result, query.getState(), query.getDistrict());
         return paginate(result, query.getStart(), query.getPageSize());
     }
 
     @Override
     public long countUsers(UsersQuery query) {
-        List<User> result = new ArrayList<>(USERS);
+        List<LdapUser> result = new ArrayList<>(users);
         //filter(result, query.getState(), query.getDistrict());
         return result.size();
     }
 
 
     @Override
-    public User saveUser(User user) {
+    public LdapUser saveUser(LdapUser user) {
         deleteUser(user.getUsername());
-        USERS.add(user);
+        users.add(user);
         return user;
     }
 
     @Override
     public void deleteUser(String username) {
-        Iterator<User> it = USERS.iterator();
+        Iterator<LdapUser> it = users.iterator();
         while (it.hasNext()) {
-            User user = it.next();
+            LdapUser user = it.next();
             if (Objects.equals(username, user.getUsername())) {
                 it.remove();
                 return;
@@ -66,17 +79,17 @@ public class DummyLdapService implements LdapUserService {
         }
     }
 
-    private void filter(List<User> users, String state, String district) {
-        Iterator<User> it = users.iterator();
+    private void filter(List<LdapUser> users, String state, String district) {
+        Iterator<LdapUser> it = users.iterator();
         while (it.hasNext()) {
-            User user = it.next();
+            LdapUser user = it.next();
             if (!Objects.equals(state, user.getState()) || !Objects.equals(district, user.getDistrict())) {
                 it.remove();
             }
         }
     }
 
-    private List<User> paginate(List<User> users, int start, int pageSize) {
+    private List<LdapUser> paginate(List<LdapUser> users, int start, int pageSize) {
         int from = start * pageSize;
         int to = Math.min(users.size(), ((start + 1) * pageSize) + 1);
         return users.subList(from, to);
