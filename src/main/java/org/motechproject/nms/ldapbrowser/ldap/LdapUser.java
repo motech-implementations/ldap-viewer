@@ -1,21 +1,24 @@
 package org.motechproject.nms.ldapbrowser.ldap;
 
-import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.util.StringUtils;
 
 public class LdapUser {
 
-    @NotBlank
+    public static final String ALL = "ALL";
+
     private String username;
-    @Length(min = 3)
     private String password;
     private String name;
     private String email;
     private String state;
     private String district;
     private boolean admin;
+    private boolean uiEdit;
 
     public LdapUser() {
+        this.state = ALL;
+        this.district = ALL;
     }
 
     public LdapUser(String username, String password, String name, String email, String state, String district, boolean admin) {
@@ -23,8 +26,8 @@ public class LdapUser {
         this.password = password;
         this.name = name;
         this.email = email;
-        this.state = state;
-        this.district = district;
+        this.state = StringUtils.isEmpty(state) ? ALL : state;
+        this.district = StringUtils.isEmpty(district) ? ALL : district;
         this.admin = admin;
     }
 
@@ -65,7 +68,7 @@ public class LdapUser {
     }
 
     public void setState(String state) {
-        this.state = state;
+        this.state = StringUtils.isEmpty(state) ? ALL : state;
     }
 
     public String getDistrict() {
@@ -73,7 +76,7 @@ public class LdapUser {
     }
 
     public void setDistrict(String district) {
-        this.district = district;
+        this.district = StringUtils.isEmpty(district) ? ALL : district;
     }
 
     public boolean isAdmin() {
@@ -82,5 +85,28 @@ public class LdapUser {
 
     public void setAdmin(boolean admin) {
         this.admin = admin;
+    }
+
+    public boolean isUiEdit() {
+        return uiEdit;
+    }
+
+    public void setUiEdit(boolean uiEdit) {
+        this.uiEdit = uiEdit;
+    }
+
+    @JsonIgnore
+    public boolean isNationalLevel() {
+        return ALL.equals(district) && ALL.equals(state);
+    }
+
+    @JsonIgnore
+    public boolean isStateLevel() {
+        return ALL.equals(district) && !ALL.equals(state);
+    }
+
+    @JsonIgnore
+    public boolean isDistrictLevel() {
+        return !ALL.equals(district) && !ALL.equals(state);
     }
 }

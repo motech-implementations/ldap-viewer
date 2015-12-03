@@ -21,7 +21,7 @@ public class UserService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		LdapUser ldapUser = ldapUserService.getUser(username);
-		if(ldapUser == null) {
+		if (ldapUser == null || !ldapUser.isAdmin()) {
 			throw new UsernameNotFoundException("user not found");
 		}
 		return createUser(ldapUser);

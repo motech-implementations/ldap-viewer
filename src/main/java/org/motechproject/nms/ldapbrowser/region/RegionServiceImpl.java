@@ -8,16 +8,22 @@ import java.util.List;
 @Service
 public class RegionServiceImpl implements RegionService {
 
+    private static final String ALL = "ALL";
+
     @Inject
     private RegionalRepository regionalRepository;
 
     @Override
     public List<String> availableStateNames() {
-        return regionalRepository.getStateNames();
+        List<String> names = regionalRepository.getStateNames();
+        names.add(ALL);
+        return names;
     }
 
     @Override
-    public List<String> availableDistrictNames() {
-        return regionalRepository.getDistrictNames();
+    public List<String> availableDistrictNames(String stateName) {
+        List<String> names = regionalRepository.getDistrictNames(stateName);
+        names.add(ALL);
+        return names;
     }
 }

@@ -10,10 +10,11 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "nms_districts")
-@NamedQuery(name = District.ALL_DISTRICT_NAMES, query = "SELECT d.name from District d")
+@NamedQuery(name = District.DISTRICT_NAMES, query = "SELECT d.name from District d WHERE d.state.name = :state_name")
 public class District {
 
-    public static final String ALL_DISTRICT_NAMES = "all_district_names";
+    public static final String DISTRICT_NAMES = "all_district_names";
+    public static final String STATE_NAME_PARAM = "state_name";
 
     @Id
     private Long id;

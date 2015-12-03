@@ -6,5 +6,5 @@ public interface RegionService {
 
     List<String> availableStateNames();
 
-    List<String> availableDistrictNames();
+    List<String> availableDistrictNames(String stateName);
 }

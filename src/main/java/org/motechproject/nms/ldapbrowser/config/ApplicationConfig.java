@@ -1,18 +1,21 @@
 package org.motechproject.nms.ldapbrowser.config;
 
-import static org.springframework.context.annotation.ComponentScan.Filter;
-
+import org.motechproject.nms.ldapbrowser.Application;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.stereotype.Controller;
 
-import org.motechproject.nms.ldapbrowser.Application;
+import static org.springframework.context.annotation.ComponentScan.Filter;
 
 @Configuration
-@PropertySource("classpath:persistence.properties")
+@PropertySources({
+		@PropertySource("classpath:persistence.properties"),
+		@PropertySource(value = "file:/etc/nms-ldap.persistence", ignoreResourceNotFound = true)
+})
 @ComponentScan(basePackageClasses = Application.class, excludeFilters = @Filter({Controller.class, Configuration.class}))
 class ApplicationConfig {
 

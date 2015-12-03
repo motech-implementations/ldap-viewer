@@ -32,5 +32,22 @@ $(document).ready( function () {
 
         window.location.href = 'ldap/user/' + row.data().username;
     });
+
+    // replace districts on state change
+    $("#state").change(function() {
+        var state = $(this).val();
+        $.get('districts/' + state, function(data) {
+            var selectEl = $("#district");
+            selectEl.empty(); // remove old options
+
+            $.each(data, function(index, value) {
+              console.log(value);
+              selectEl.append($("<option></option>")
+                 .attr("value", value).text(value));
+            });
+
+            selectEl.val("ALL");
+        });
+    });
 } );
 

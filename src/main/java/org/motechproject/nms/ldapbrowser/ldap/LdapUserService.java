@@ -6,9 +6,9 @@ public interface LdapUserService {
 
     LdapUser getUser(String username);
 
-    List<LdapUser> getUsers(UsersQuery query);
+    List<LdapUser> getUsers(UsersQuery query, String currentUsername);
 
-    long countUsers(UsersQuery query);
+    long countUsers(String currentUsername);
 
     LdapUser saveUser(LdapUser user);
 

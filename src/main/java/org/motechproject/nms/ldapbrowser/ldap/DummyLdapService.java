@@ -26,14 +26,14 @@ public class DummyLdapService implements LdapUserService {
                 null, null, true));
         users.add(new LdapUser("nviewer", passwordEncoder.encode("password"), "National Viewer", "nviewer@motechproject.org",
                 null, null, false));
-        users.add(new LdapUser("sadmin", passwordEncoder.encode("password"), "Pomorskie Admin", "sadmin@motechproject.org",
-                "Pomorskie", null, false));
-        users.add(new LdapUser("sviewer", passwordEncoder.encode("password"), "Pomorskie Viewer", "sviewer@motechproject.org",
-                "Pomorskie", null, false));
+        users.add(new LdapUser("sadmin", passwordEncoder.encode("password"), "DELHI Admin", "sadmin@motechproject.org",
+                "DELHI", null, true));
+        users.add(new LdapUser("sviewer", passwordEncoder.encode("password"), "DELHI Viewer", "sviewer@motechproject.org",
+                "DELHI", null, false));
         users.add(new LdapUser("dadmin", passwordEncoder.encode("password"), "District Admin", "dadmin@motechproject.org",
-                "Pomorskie", "Gdynia", false));
+                "DELHI", "Saket", true));
         users.add(new LdapUser("dviewer", passwordEncoder.encode("password"), "District Viewer", "dviewer@motechproject.org",
-                "Pomorskie", "Gdynia", false));
+                "DELHI", "Saket", false));
     }
 
     @Override
@@ -47,16 +47,26 @@ public class DummyLdapService implements LdapUserService {
     }
 
     @Override
-    public List<LdapUser> getUsers(UsersQuery query) {
+    public List<LdapUser> getUsers(UsersQuery query, String currentUsername) {
         List<LdapUser> result = new ArrayList<>(users);
-        //filter(result, query.getState(), query.getDistrict());
+
+        LdapUser currentUser = getUser(currentUsername);
+        if (currentUser == null) {
+            throw new IllegalStateException("User not found: " + currentUsername);
+        }
+
+        filter(result, currentUser.getState(), currentUser.getDistrict());
+
         return paginate(result, query.getStart(), query.getPageSize());
     }
 
     @Override
-    public long countUsers(UsersQuery query) {
+    public long countUsers(String currentUsername) {
         List<LdapUser> result = new ArrayList<>(users);
-        //filter(result, query.getState(), query.getDistrict());
+        LdapUser currentUser = getUser(currentUsername);
+
+        filter(result, currentUser.getState(), currentUser.getDistrict());
+
         return result.size();
     }
 
@@ -68,8 +78,16 @@ public class DummyLdapService implements LdapUserService {
             // preserve password if not modified
             if (StringUtils.isEmpty(user.getPassword())) {
                 user.setPassword(existing.getPassword());
+            } else {
+                // change password
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
             }
+
+            // delete existing
             deleteUser(user.getUsername());
+        } else {
+            // new user, just encode the password
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
 
         users.add(user);
@@ -92,7 +110,8 @@ public class DummyLdapService implements LdapUserService {
         Iterator<LdapUser> it = users.iterator();
         while (it.hasNext()) {
             LdapUser user = it.next();
-            if (!Objects.equals(state, user.getState()) || !Objects.equals(district, user.getDistrict())) {
+            if ((!LdapUser.ALL.equals(state) && !state.equals(user.getState())) ||
+                    (!LdapUser.ALL.equals(district) && !district.equals(user.getDistrict()))) {
                 it.remove();
             }
         }

@@ -19,7 +19,9 @@ public class RegionalRepository {
         return em.createNamedQuery(State.STATE_NAMES, String.class).getResultList();
     }
 
-    public List<String> getDistrictNames() {
-        return em.createNamedQuery(District.ALL_DISTRICT_NAMES, String.class).getResultList();
+    public List<String> getDistrictNames(String stateName) {
+        return em.createNamedQuery(District.DISTRICT_NAMES, String.class)
+                .setParameter(District.STATE_NAME_PARAM, stateName)
+                .getResultList();
     }
 }
