@@ -56,7 +56,14 @@ class LdapController {
     @RequestMapping(value = "ldap/user/districts/{stateName}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<String> getDistrictNames(@PathVariable String stateName) {
+    public List<String> getDistrictNamesForExistingUser(@PathVariable String stateName) {
+        return regionService.availableDistrictNames(stateName);
+    }
+
+    @RequestMapping(value = "ldap/districts/{stateName}", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<String> getDistrictNamesForNewUser(@PathVariable String stateName) {
         return regionService.availableDistrictNames(stateName);
     }
 
