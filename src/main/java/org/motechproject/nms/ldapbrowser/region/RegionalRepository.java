@@ -24,4 +24,17 @@ public class RegionalRepository {
                 .setParameter(District.STATE_NAME_PARAM, stateName)
                 .getResultList();
     }
+
+    public State getStateByName(String stateName) {
+        return em.createQuery(State.BY_NAME, State.class)
+                .setParameter(State.STATE_NAME_PARAM, stateName)
+                .getSingleResult();
+    }
+
+    public District findDistrict(String stateName, String districtName) {
+        return em.createQuery(District.FIND_DISTRICT, District.class)
+                .setParameter(District.STATE_NAME_PARAM, stateName)
+                .setParameter(District.DISTRICT_NAME_PARAM, districtName)
+                .getSingleResult();
+    }
 }

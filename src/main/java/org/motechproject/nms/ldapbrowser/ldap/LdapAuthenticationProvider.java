@@ -12,9 +12,6 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 import java.util.Collections;
 
-/**
- * Created by GES0_000 on 03.12.2015.
- */
 @Component
 public class LdapAuthenticationProvider implements AuthenticationProvider {
 

@@ -26,4 +26,14 @@ public class RegionServiceImpl implements RegionService {
         names.add(ALL);
         return names;
     }
+
+    @Override
+    public boolean stateExists(String stateName) {
+        return regionalRepository.getStateByName(stateName) != null;
+    }
+
+    @Override
+    public boolean districtExists(String stateName, String districtName) {
+        return regionalRepository.findDistrict(stateName, districtName) != null;
+    }
 }
