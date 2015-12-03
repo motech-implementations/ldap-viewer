@@ -1,39 +1,39 @@
 package org.motechproject.nms.ldapbrowser.ldap;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-@Service
+// @Service
 public class DummyLdapService implements LdapUserService {
 
     private final List<LdapUser> users = new LinkedList<>();
 
-    @Inject
-    private PasswordEncoder passwordEncoder;
-
     @PostConstruct
     public void init() {
-        users.add(new LdapUser("admin", passwordEncoder.encode("password"), "National Admin", "nadmin@motechproject.org",
+        users.add(new LdapUser("admin", "password", "National Admin", "nadmin@motechproject.org",
                 null, null, true));
-        users.add(new LdapUser("nviewer", passwordEncoder.encode("password"), "National Viewer", "nviewer@motechproject.org",
+        users.add(new LdapUser("nviewer", "password", "National Viewer", "nviewer@motechproject.org",
                 null, null, false));
-        users.add(new LdapUser("sadmin", passwordEncoder.encode("password"), "DELHI Admin", "sadmin@motechproject.org",
+        users.add(new LdapUser("sadmin", "password", "DELHI Admin", "sadmin@motechproject.org",
                 "DELHI", null, true));
-        users.add(new LdapUser("sviewer", passwordEncoder.encode("password"), "DELHI Viewer", "sviewer@motechproject.org",
+        users.add(new LdapUser("sviewer", "password", "DELHI Viewer", "sviewer@motechproject.org",
                 "DELHI", null, false));
-        users.add(new LdapUser("dadmin", passwordEncoder.encode("password"), "District Admin", "dadmin@motechproject.org",
+        users.add(new LdapUser("dadmin", "password", "District Admin", "dadmin@motechproject.org",
                 "DELHI", "Saket", true));
-        users.add(new LdapUser("dviewer", passwordEncoder.encode("password"), "District Viewer", "dviewer@motechproject.org",
+        users.add(new LdapUser("dviewer", "password", "District Viewer", "dviewer@motechproject.org",
                 "DELHI", "Saket", false));
+    }
+
+    @Override
+    public LdapUser authenticate(String username, String password) {
+        LdapUser user = getUser(username);
+        return user.getPassword().equals(password) ? user : null;
     }
 
     @Override
@@ -80,14 +80,14 @@ public class DummyLdapService implements LdapUserService {
                 user.setPassword(existing.getPassword());
             } else {
                 // change password
-                user.setPassword(passwordEncoder.encode(user.getPassword()));
+                user.setPassword(user.getPassword());
             }
 
             // delete existing
             deleteUser(user.getUsername());
         } else {
             // new user, just encode the password
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setPassword(user.getPassword());
         }
 
         users.add(user);

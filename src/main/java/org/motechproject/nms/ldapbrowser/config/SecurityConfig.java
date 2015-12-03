@@ -1,5 +1,6 @@
 package org.motechproject.nms.ldapbrowser.config;
 
+import org.motechproject.nms.ldapbrowser.ldap.LdapAuthenticationProvider;
 import org.springframework.context.annotation.*;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,9 +12,14 @@ import org.springframework.security.web.authentication.rememberme.TokenBasedReme
 
 import org.motechproject.nms.ldapbrowser.ldap.UserService;
 
+import javax.inject.Inject;
+
 @Configuration
 @EnableWebMvcSecurity
 class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Inject
+    private LdapAuthenticationProvider ldapAuthenticationProvider;
 
     @Bean
     public UserService userService() {
@@ -34,8 +40,9 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
             .eraseCredentials(true)
-            .userDetailsService(userService())
-            .passwordEncoder(passwordEncoder());
+            .authenticationProvider(ldapAuthenticationProvider);
+            //.userDetailsService(userService())
+            //.passwordEncoder(passwordEncoder());
     }
 
     @Override

@@ -4,6 +4,8 @@ import java.util.List;
 
 public interface LdapUserService {
 
+    LdapUser authenticate(String username, String password);
+
     LdapUser getUser(String username);
 
     List<LdapUser> getUsers(UsersQuery query, String currentUsername);

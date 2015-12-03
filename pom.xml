@@ -131,6 +131,12 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
+        <!-- LDAP -->
+        <dependency>
+            <groupId>org.apache.directory.api</groupId>
+            <artifactId>api-all</artifactId>
+            <version>1.0.0-M32</version>
+        </dependency>
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
