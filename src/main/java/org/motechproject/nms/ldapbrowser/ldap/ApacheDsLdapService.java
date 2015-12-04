@@ -18,7 +18,6 @@ import org.motechproject.nms.ldapbrowser.region.RegionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -26,7 +25,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-@Service
+// @Service
 public class ApacheDsLdapService extends DummyLdapService implements LdapUserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApacheDsLdapService.class);

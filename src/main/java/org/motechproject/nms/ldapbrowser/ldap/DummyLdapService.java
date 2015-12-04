@@ -1,5 +1,6 @@
 package org.motechproject.nms.ldapbrowser.ldap;
 
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -9,7 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-// @Service
+@Service
 public class DummyLdapService implements LdapUserService {
 
     private final List<LdapUser> users = new LinkedList<>();

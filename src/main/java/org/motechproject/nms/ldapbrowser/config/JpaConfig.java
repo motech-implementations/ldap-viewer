@@ -1,7 +1,6 @@
 package org.motechproject.nms.ldapbrowser.config;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.flywaydb.core.Flyway;
 import org.motechproject.nms.ldapbrowser.Application;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +15,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.TransactionManagementConfigurer;
 
+import javax.naming.NamingException;
 import javax.sql.DataSource;
+import java.beans.PropertyVetoException;
 import java.util.Properties;
 
 @Configuration
@@ -38,22 +39,23 @@ class JpaConfig implements TransactionManagementConfigurer {
     private String hbm2ddlAuto;
 
     @Bean
-    public DataSource configureDataSource() {
-        HikariConfig config = new HikariConfig();
-        config.setDriverClassName(driver);
-        config.setJdbcUrl(url);
-        config.setUsername(username);
-        config.setPassword(password);
-        config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-        config.addDataSourceProperty("useServerPrepStmts", "true");
+    public DataSource configureDataSource() throws PropertyVetoException, NamingException {
+        ComboPooledDataSource ds = new ComboPooledDataSource();
 
-        return new HikariDataSource(config);
+        ds.setDriverClass(driver);
+        ds.setJdbcUrl(url);
+        ds.setUser(username);
+        ds.setPassword(password);
+        ds.setMaxPoolSize(50);
+        ds.setMinPoolSize(10);
+        ds.setMaxStatements(100);
+        ds.setTestConnectionOnCheckout(true);
+
+        return ds;
     }
 
     @Bean(initMethod = "migrate", name = "flyway")
-    public Flyway flyway() {
+    public Flyway flyway() throws PropertyVetoException, NamingException {
         Flyway flyway = new Flyway();
         flyway.setDataSource(configureDataSource());
         return flyway;
@@ -61,7 +63,7 @@ class JpaConfig implements TransactionManagementConfigurer {
 
     @Bean
     @DependsOn("flyway")
-    public LocalContainerEntityManagerFactoryBean configureEntityManagerFactory() {
+    public LocalContainerEntityManagerFactoryBean configureEntityManagerFactory() throws PropertyVetoException, NamingException {
         LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactoryBean.setDataSource(configureDataSource());
         entityManagerFactoryBean.setPackagesToScan("org.motechproject.nms");
