@@ -1,4 +1,4 @@
-# ldap-manager
+# NMS LDAP Manager
 LDAP user manager for NMS
 
 Default MySQL credentials used: root/password
