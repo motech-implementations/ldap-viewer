@@ -1,2 +1,2 @@
-# ldap-viewer
-LDAP user viewer for NMS
+# ldap-manager
+LDAP user manager for NMS
