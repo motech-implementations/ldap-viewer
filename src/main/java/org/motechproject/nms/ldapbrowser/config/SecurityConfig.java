@@ -41,8 +41,6 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth
             .eraseCredentials(true)
             .authenticationProvider(ldapAuthenticationProvider);
-            //.userDetailsService(userService())
-            //.passwordEncoder(passwordEncoder());
     }
 
     @Override
