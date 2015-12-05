@@ -3,27 +3,25 @@ package org.motechproject.nms.ldapbrowser.ldap.apacheds;
 
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
-import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapException;
-import org.apache.directory.api.ldap.model.message.SearchScope;
+import org.apache.directory.api.ldap.model.message.AddRequest;
+import org.apache.directory.api.ldap.model.message.AddRequestImpl;
+import org.apache.directory.api.ldap.model.message.AddResponse;
+import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.motechproject.nms.ldapbrowser.ldap.LdapFacade;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 import org.motechproject.nms.ldapbrowser.ldap.ex.LdapAuthException;
+import org.motechproject.nms.ldapbrowser.ldap.ex.LdapWriteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.inject.Inject;
 import java.io.IOException;
-
-import static org.motechproject.nms.ldapbrowser.ldap.apacheds.LdapConstants.CN;
-import static org.motechproject.nms.ldapbrowser.ldap.apacheds.LdapConstants.DC;
-import static org.motechproject.nms.ldapbrowser.ldap.apacheds.LdapConstants.OBJECT_CLASS;
-import static org.motechproject.nms.ldapbrowser.ldap.apacheds.LdapConstants.OU;
 
 public class ApacheDsFacade implements LdapFacade {
 
@@ -38,17 +36,11 @@ public class ApacheDsFacade implements LdapFacade {
     @Value("${ldap.useSsl}")
     private boolean ldapUseSsl;
 
-    @Value("${ldap.ou.roles")
-    private String rolesOu;
-
-    @Value("${ldap.dc")
-    private String dc;
-
-    @Value("$ldap.userClass")
-    private String userClass;
-
     @Inject
     private LdapConnectionPool adminConnectionPool;
+
+    @Inject
+    private EntryHelper entryHelper;
 
     @Override
     public LdapUser findUser(String username) {
@@ -61,18 +53,14 @@ public class ApacheDsFacade implements LdapFacade {
         }
 
         try {
-            String baseDn = String.format("%s=%s, %s=%s", OU, rolesOu, DC, dc);
-            String filter = String.format("(%s=%s)", OBJECT_CLASS, userClass);
-
-            EntryCursor cursor = connection.search(baseDn, filter, SearchScope.SUBTREE);
+            EntryCursor cursor = entryHelper.searchForAdmins(connection);
 
             while (cursor.next()) {
                 Entry entry = cursor.get();
-                Attribute usernameAttr = entry.get(CN);
-                String ldapUserName = usernameAttr.getString();
+                String ldapUserName = entryHelper.getUsername(entry);
                 if (username.equals(ldapUserName)) {
                     // TODO: Multi state
-                    return EntryUtil.buildUser(entry);
+                    return entryHelper.buildUser(entry);
                 }
             }
 
@@ -93,6 +81,30 @@ public class ApacheDsFacade implements LdapFacade {
         } else {
             // can't auth or doesn't exist
             return null;
+        }
+    }
+
+    @Override
+    public void addLdapUserEntry(LdapUser user, String creatorUsername, String creatorPassword) {
+        ApacheDsUser creatorUser = getCurrentUser(creatorUsername);
+
+        try (LdapConnection connection = new LdapNetworkConnection(ldapHost, ldapPort, ldapUseSsl)) {
+            connection.bind(creatorUser.getDn(), creatorPassword);
+
+            Entry userEntry = entryHelper.userToEntry(user);
+            AddRequest addRequest = new AddRequestImpl();
+            addRequest.setEntry(userEntry);
+
+            AddResponse addResponse = connection.add(addRequest);
+
+            ResultCodeEnum resultCode = addResponse.getLdapResult().getResultCode();
+            if (resultCode != ResultCodeEnum.SUCCESS) {
+                throw new LdapWriteException(String.format("User %s failed to add user %s with dn %s. Error code: %s",
+                        creatorUsername, user.getUsername(), userEntry.getDn(), resultCode));
+            }
+        } catch (IOException | LdapException e) {
+            throw new LdapWriteException(String.format("User %s failed to add user %s",
+                    creatorUsername, user.getUsername()), e);
         }
     }
 
@@ -117,5 +129,13 @@ public class ApacheDsFacade implements LdapFacade {
                 LOG.error("Error while unbinding the connection", e);
             }
         }
+    }
+
+    private ApacheDsUser getCurrentUser(String username) {
+        ApacheDsUser currentUser = (ApacheDsUser) findUser(username);
+        if (currentUser == null) {
+            throw new LdapAuthException("Unable to find user: " + username);
+        }
+        return currentUser;
     }
 }

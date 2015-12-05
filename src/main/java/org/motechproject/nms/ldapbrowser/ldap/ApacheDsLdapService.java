@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.List;
 
 // @Service
 public class ApacheDsLdapService extends DummyLdapService implements LdapUserService {
@@ -26,6 +27,16 @@ public class ApacheDsLdapService extends DummyLdapService implements LdapUserSer
         validateDistrict(user.getState(), user.getDistrict());
 
         return user;
+    }
+
+    @Override
+    public LdapUser getUser(String username) {
+        return ldapFacade.findUser(username);
+    }
+
+    @Override
+    public List<LdapUser> getUsers(UsersQuery query, String currentUsername) {
+        return super.getUsers(query, currentUsername);
     }
 
     private void validateState(String stateName) {
