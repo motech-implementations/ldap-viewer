@@ -37,19 +37,29 @@ class JpaConfig implements TransactionManagementConfigurer {
     private String dialect;
     @Value("${hibernate.hbm2ddl.auto}")
     private String hbm2ddlAuto;
+    @Value("${c3p0.maxPoolSize}")
+    private int maxPoolSize;
+    @Value("${c3p0.minPoolSize}")
+    private int minPoolSize;
+    @Value("${c3p0.maxStatements}")
+    private int maxStatements;
+    @Value("${c3p0.testConnectionOnCheckout}")
+    private boolean testConnOnCheckout;
 
     @Bean
     public DataSource configureDataSource() throws PropertyVetoException, NamingException {
         ComboPooledDataSource ds = new ComboPooledDataSource();
 
+        // jdbc
         ds.setDriverClass(driver);
         ds.setJdbcUrl(url);
         ds.setUser(username);
         ds.setPassword(password);
-        ds.setMaxPoolSize(50);
-        ds.setMinPoolSize(10);
-        ds.setMaxStatements(100);
-        ds.setTestConnectionOnCheckout(true);
+        // c3p0 pool
+        ds.setMaxPoolSize(maxPoolSize);
+        ds.setMinPoolSize(minPoolSize);
+        ds.setMaxStatements(maxStatements);
+        ds.setTestConnectionOnCheckout(testConnOnCheckout);
 
         return ds;
     }
