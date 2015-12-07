@@ -33,6 +33,8 @@ import static org.motechproject.nms.ldapbrowser.ldap.apacheds.LdapConstants.OU;
 @Component
 public class EntryHelper {
 
+    private static final int DISTRICT_RDN_COUNT = 5;
+
     @Value("${ldap.ou.roles}")
     private String rolesOu;
 
@@ -60,7 +62,7 @@ public class EntryHelper {
     public ApacheDsUser buildUser(Entry entry) {
         ApacheDsUser ldapUser = new ApacheDsUser();
 
-        ldapUser.setUsername(entry.getDn().getRdn(0).getValue());
+        ldapUser.setUsername(entryName(entry));
         ldapUser.setName(getAttributeStrVal(entry, AttributeNames.NAME));
         ldapUser.setEmail(getAttributeStrVal(entry, AttributeNames.EMAIL));
         ldapUser.setMobileNumber(getAttributeStrVal(entry, AttributeNames.MOBILE_NUMBER));
@@ -77,7 +79,7 @@ public class EntryHelper {
     }
 
     public EntryCursor searchForAdmins(LdapConnection connection) throws LdapException {
-        String baseDn = String.format("%s=%s, %s=%s", OU, rolesOu, DC, dc);
+        String baseDn = ouDcStr(rolesOu);
         String filter = FilterBuilder.equal(OBJECT_CLASS, userClass).toString();
 
         return connection.search(baseDn, filter, SearchScope.SUBTREE);
@@ -87,7 +89,7 @@ public class EntryHelper {
         List<LdapUser> users = new ArrayList<>();
 
         String stateDistrictPart = stateAndDistrictToDnPart(state, district);
-        String oudc = String.format("%s=%s, %s=%s", OU, rolesOu, DC, dc);
+        String oudc = ouDcStr(rolesOu);
 
         String baseDn = stateDistrictPart + oudc;
         String filter = FilterBuilder.equal(OBJECT_CLASS, roleClass).toString();
@@ -163,6 +165,46 @@ public class EntryHelper {
         } else {
             return null;
         }
+    }
+
+    public List<String> stateNames(LdapConnection connection) throws LdapException, CursorException {
+        List<String> names = new ArrayList<>();
+
+        String nationalView = String.format("%s=%s, ", CN, nationalRole);
+        String oudc = ouDcStr(rolesOu);
+
+        String filter = FilterBuilder.equal(OBJECT_CLASS, roleClass).toString();
+        String baseDn = nationalView + oudc;
+
+        EntryCursor cursor = connection.search(baseDn, filter, SearchScope.ONELEVEL);
+
+        while (cursor.next()) {
+            Entry entry = cursor.get();
+            String stateName = parseRole(entryName(entry));
+            names.add(stateName);
+        }
+
+        return names;
+    }
+
+    public List<String> districtNames(LdapConnection connection, String stateName) throws LdapException, CursorException {
+        List<String> names = new ArrayList<>();
+
+        String districtStatePart = stateAndDistrictToDnPart(stateName, null);
+        String oudc = ouDcStr(rolesOu);
+
+        String filter = FilterBuilder.equal(OBJECT_CLASS, roleClass).toString();
+        String baseDn = districtStatePart + oudc;
+
+        EntryCursor cursor = connection.search(baseDn, filter, SearchScope.ONELEVEL);
+
+        while (cursor.next()) {
+            Entry entry = cursor.get();
+            String distName = parseRole(entryName(entry));
+            names.add(distName);
+        }
+
+        return names;
     }
 
     private String getAttributeStrVal(Entry entry, String attrName) {
@@ -252,5 +294,13 @@ public class EntryHelper {
             }
         }
         return dns;
+    }
+
+    private String ouDcStr(String ou) {
+        return String.format("%s=%s, %s=%s", OU, ou, DC, dc);
+    }
+
+    private String entryName(Entry entry) {
+        return entry.getDn().getRdns().get(0).getValue();
     }
 }

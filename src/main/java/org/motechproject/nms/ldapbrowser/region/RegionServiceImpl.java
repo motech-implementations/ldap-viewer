@@ -11,29 +11,19 @@ public class RegionServiceImpl implements RegionService {
     private static final String ALL = "ALL";
 
     @Inject
-    private RegionalRepository regionalRepository;
+    private RegionProvider regionProvider;
 
     @Override
     public List<String> availableStateNames() {
-        List<String> names = regionalRepository.getStateNames();
+        List<String> names = regionProvider.getStateNames();
         names.add(ALL);
         return names;
     }
 
     @Override
     public List<String> availableDistrictNames(String stateName) {
-        List<String> names = regionalRepository.getDistrictNames(stateName);
+        List<String> names = regionProvider.getDistrictNames(stateName);
         names.add(ALL);
         return names;
-    }
-
-    @Override
-    public boolean stateExists(String stateName) {
-        return regionalRepository.getStateByName(stateName) != null;
-    }
-
-    @Override
-    public boolean districtExists(String stateName, String districtName) {
-        return regionalRepository.findDistrict(stateName, districtName) != null;
     }
 }

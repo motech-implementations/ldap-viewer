@@ -1,6 +1,5 @@
 package org.motechproject.nms.ldapbrowser.ldap;
 
-import org.motechproject.nms.ldapbrowser.ldap.ex.LdapReadException;
 import org.motechproject.nms.ldapbrowser.region.RegionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,14 +22,7 @@ public class LdapUserServiceImpl implements LdapUserService {
 
     @Override
     public LdapUser authenticate(String username, String password) {
-        LdapUser user = ldapFacade.findAndAuthenticate(username, password);
-
-    /*    if (user != null) {
-            validateState(user.getState());
-            validateDistrict(user.getState(), user.getDistrict());
-        }*/
-
-        return user;
+        return ldapFacade.findAndAuthenticate(username, password);
     }
 
     @Override
@@ -60,17 +52,5 @@ public class LdapUserServiceImpl implements LdapUserService {
 
     private String getCurrentPassword() {
         return (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-    }
-
-    private void validateState(String stateName) {
-        if (!regionService.stateExists(stateName)) {
-            throw new LdapReadException("Unknown state: " + stateName);
-        }
-    }
-
-    private void validateDistrict(String stateName, String districtName) {
-        if (!regionService.districtExists(stateName, districtName)) {
-            throw new LdapReadException("Unknown district: " + districtName + " in state " + stateName);
-        }
     }
 }

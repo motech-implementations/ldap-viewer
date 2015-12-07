@@ -6,7 +6,10 @@ import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
 import org.motechproject.nms.ldapbrowser.ldap.LdapFacade;
 import org.motechproject.nms.ldapbrowser.ldap.apacheds.ApacheDsFacade;
+import org.motechproject.nms.ldapbrowser.ldap.apacheds.ApacheDsRegionProvider;
 import org.motechproject.nms.ldapbrowser.ldap.dummy.DummyLdapFacade;
+import org.motechproject.nms.ldapbrowser.region.RegionProvider;
+import org.motechproject.nms.ldapbrowser.region.dummy.DummyRegionProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,6 +64,15 @@ class LdapConfig {
             return new DummyLdapFacade();
         } else {
             return new ApacheDsFacade();
+        }
+    }
+
+    @Bean
+    public RegionProvider regionProvider() {
+        if (useDummyLdap) {
+            return new DummyRegionProvider();
+        } else {
+            return new ApacheDsRegionProvider();
         }
     }
 }

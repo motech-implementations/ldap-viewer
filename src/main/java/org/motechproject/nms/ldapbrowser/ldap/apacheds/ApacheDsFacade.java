@@ -52,7 +52,7 @@ public class ApacheDsFacade implements LdapFacade {
             connection = adminConnectionPool.getConnection();
         } catch (LdapException e) {
             throw new LdapAuthException("Unable to bind admin connection", e);
-        }
+    }
 
         try {
             EntryCursor cursor = entryHelper.searchForAdmins(connection);
