@@ -1,7 +1,7 @@
 $(document).ready( function () {
     var table = $('#user_table').DataTable({
         "processing": true,
-        "serverSide": true,
+        "serverSide": false,
         "ajax": {
             "url": "ldap/users",
             "type": "POST",
