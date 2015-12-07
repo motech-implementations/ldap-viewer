@@ -15,6 +15,7 @@ import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.motechproject.nms.ldapbrowser.ldap.LdapFacade;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 import org.motechproject.nms.ldapbrowser.ldap.ex.LdapAuthException;
+import org.motechproject.nms.ldapbrowser.ldap.ex.LdapReadException;
 import org.motechproject.nms.ldapbrowser.ldap.ex.LdapWriteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.List;
 
 public class ApacheDsFacade implements LdapFacade {
 
@@ -105,6 +107,20 @@ public class ApacheDsFacade implements LdapFacade {
         } catch (IOException | LdapException e) {
             throw new LdapWriteException(String.format("User %s failed to add user %s",
                     creatorUsername, user.getUsername()), e);
+        }
+    }
+
+    @Override
+    public List<LdapUser> getUsers(String adminUsername, String adminPassword) {
+        ApacheDsUser currentUser = getCurrentUser(adminUsername);
+
+        try (LdapConnection connection = new LdapNetworkConnection(ldapHost, ldapPort, ldapUseSsl)) {
+            connection.bind(currentUser.getDn(), adminPassword);
+
+            return entryHelper.getAllUsers(connection, currentUser.getState(),
+                    currentUser.getDistrict());
+        } catch (IOException | LdapException | CursorException e) {
+            throw new LdapReadException("User " + adminPassword + " failed to retrieve users", e);
         }
     }
 

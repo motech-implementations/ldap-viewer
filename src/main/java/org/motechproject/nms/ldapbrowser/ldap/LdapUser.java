@@ -13,6 +13,8 @@ public class LdapUser {
     private String email;
     private String state;
     private String district;
+    private String workNumber;
+    private String mobileNumber;
     private boolean admin;
     private boolean uiEdit;
 
@@ -93,6 +95,22 @@ public class LdapUser {
 
     public void setUiEdit(boolean uiEdit) {
         this.uiEdit = uiEdit;
+    }
+
+    public String getWorkNumber() {
+        return workNumber;
+    }
+
+    public void setWorkNumber(String workNumber) {
+        this.workNumber = workNumber;
+    }
+
+    public String getMobileNumber() {
+        return mobileNumber;
+    }
+
+    public void setMobileNumber(String mobileNumber) {
+        this.mobileNumber = mobileNumber;
     }
 
     @JsonIgnore
