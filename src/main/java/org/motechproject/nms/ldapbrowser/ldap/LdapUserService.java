@@ -10,8 +10,6 @@ public interface LdapUserService {
 
     List<LdapUser> getUsers(UsersQuery query, String currentUsername);
 
-    long countUsers(String currentUsername);
-
     LdapUser saveUser(LdapUser user);
 
     void deleteUser(String username);

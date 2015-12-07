@@ -4,6 +4,9 @@ import org.apache.directory.ldap.client.api.AbstractPoolableLdapConnectionFactor
 import org.apache.directory.ldap.client.api.DefaultPoolableLdapConnectionFactory;
 import org.apache.directory.ldap.client.api.LdapConnectionConfig;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
+import org.motechproject.nms.ldapbrowser.ldap.LdapFacade;
+import org.motechproject.nms.ldapbrowser.ldap.apacheds.ApacheDsFacade;
+import org.motechproject.nms.ldapbrowser.ldap.dummy.DummyLdapFacade;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +29,9 @@ class LdapConfig {
     @Value("${ldap.admin.password}")
     private String adminPassword;
 
+    @Value("${useDummyLdap}")
+    private boolean useDummyLdap;
+
     @Bean
     public LdapConnectionConfig ldapConnectionConfig() {
         LdapConnectionConfig config = new LdapConnectionConfig();
@@ -47,5 +53,14 @@ class LdapConfig {
         LdapConnectionPool pool = new LdapConnectionPool(ldapConnectionFactory());
         pool.setTestOnBorrow(true);
         return pool;
+    }
+
+    @Bean
+    public LdapFacade ldapFacade() {
+        if (useDummyLdap) {
+            return new DummyLdapFacade();
+        } else {
+            return new ApacheDsFacade();
+        }
     }
 }

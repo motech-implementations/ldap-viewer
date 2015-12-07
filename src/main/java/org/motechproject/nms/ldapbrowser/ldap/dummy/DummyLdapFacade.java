@@ -1,7 +1,7 @@
-package org.motechproject.nms.ldapbrowser.ldap;
+package org.motechproject.nms.ldapbrowser.ldap.dummy;
 
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import org.motechproject.nms.ldapbrowser.ldap.LdapFacade;
+import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -10,8 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-@Service
-public class DummyLdapService implements LdapUserService {
+public class DummyLdapFacade implements LdapFacade {
 
     private final List<LdapUser> users = new LinkedList<>();
 
@@ -32,13 +31,13 @@ public class DummyLdapService implements LdapUserService {
     }
 
     @Override
-    public LdapUser authenticate(String username, String password) {
-        LdapUser user = getUser(username);
+    public LdapUser findAndAuthenticate(String username, String password) {
+        LdapUser user = findUser(username);
         return user.getPassword().equals(password) ? user : null;
     }
 
     @Override
-    public LdapUser getUser(String username) {
+    public LdapUser findUser(String username) {
         for (LdapUser user : users) {
             if (Objects.equals(username, user.getUsername())) {
                 return user;
@@ -48,54 +47,25 @@ public class DummyLdapService implements LdapUserService {
     }
 
     @Override
-    public List<LdapUser> getUsers(UsersQuery query, String currentUsername) {
+    public List<LdapUser> getUsers(String adminUsername, String adminPassword) {
         List<LdapUser> result = new ArrayList<>(users);
 
-        LdapUser currentUser = getUser(currentUsername);
+        LdapUser currentUser = findUser(adminUsername);
         if (currentUser == null) {
-            throw new IllegalStateException("User not found: " + currentUsername);
+            throw new IllegalStateException("User not found: " + adminUsername);
         }
 
         filter(result, currentUser.getState(), currentUser.getDistrict());
 
-        return paginate(result, query.getStart(), query.getPageSize());
+        return result;
     }
 
     @Override
-    public long countUsers(String currentUsername) {
-        List<LdapUser> result = new ArrayList<>(users);
-        LdapUser currentUser = getUser(currentUsername);
-
-        filter(result, currentUser.getState(), currentUser.getDistrict());
-
-        return result.size();
-    }
-
-
-    @Override
-    public LdapUser saveUser(LdapUser user) {
-        LdapUser existing = getUser(user.getUsername());
-        if (existing != null){
-            // preserve password if not modified
-            if (StringUtils.isEmpty(user.getPassword())) {
-                user.setPassword(existing.getPassword());
-            } else {
-                // change password
-                user.setPassword(user.getPassword());
-            }
-
-            // delete existing
-            deleteUser(user.getUsername());
-        } else {
-            // new user, just encode the password
-            user.setPassword(user.getPassword());
-        }
-
+    public void addLdapUserEntry(LdapUser user, String creatorUsername, String creatorPassword) {
         users.add(user);
-        return user;
     }
 
-    @Override
+    //@Override
     public void deleteUser(String username) {
         Iterator<LdapUser> it = users.iterator();
         while (it.hasNext()) {
@@ -116,11 +86,5 @@ public class DummyLdapService implements LdapUserService {
                 it.remove();
             }
         }
-    }
-
-    private List<LdapUser> paginate(List<LdapUser> users, int start, int pageSize) {
-        int from = start * pageSize;
-        int to = Math.min(users.size(), ((start + 1) * pageSize) + 1);
-        return users.subList(from, to);
     }
 }

@@ -48,9 +48,8 @@ class LdapController {
         UsersQuery query = new UsersQuery(dtRequest.getStart(), dtRequest.getLength());
 
         List<LdapUser> users = ldapUserService.getUsers(query, principal.getName());
-        long totalUsers = ldapUserService.countUsers(principal.getName());
 
-        return new DtData<>(users, totalUsers);
+        return new DtData<>(users, users.size());
     }
 
     @RequestMapping(value = "ldap/user/districts/{stateName}", method = RequestMethod.GET)
