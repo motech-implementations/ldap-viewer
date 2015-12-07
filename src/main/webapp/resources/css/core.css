@@ -1,15 +1,155 @@
+html {
+    height: 100%;
+}
+
 body {
     padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
     padding-bottom: 40px;
-    background-color: #f5f5f5;
+    color: #3d648f;
+    background: #ffffff;
+    background: -moz-linear-gradient(top, #daebfb 0%, #f4f8fc 18%, #ffffff 30%);
+    background: -webkit-linear-gradient(top, #daebfb 0%,#f4f8fc 28%,#ffffff 30%);
+    background: linear-gradient(to bottom, #daebfb 0%,#f4f8fc 18%,#ffffff 30%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#daebfb', endColorstr='#ffffff',GradientType=0 );
 }
 
-.form-narrow {
-    max-width: 490px;
-    padding: 19px 29px 29px;
-    margin: 0 auto 20px;
+.navbar.navbar-default {
+    color: #3d6480;
+    border-color: #c3d5e4;
+    box-shadow: 0 1px 3px #9A9EA0;
+    background: #d7e4ed;
+    background: -moz-linear-gradient(top, #d7e4ed 0%, #c3d5e4 100%);
+    background: -webkit-linear-gradient(top, #d7e4ed 0%,#c3d5e4 100%);
+    background: linear-gradient(to bottom, #d7e4ed 0%,#c3d5e4 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d7e4ed', endColorstr='#c3d5e4',GradientType=0 );
+}
+
+.navbar.navbar-default a,
+.navbar-default .navbar-nav>li>a  {
+    color: #3d6480;
+}
+
+.navbar-default .navbar-toggle {
+    border-color: #3d648f;
+}
+
+.navbar-default .navbar-toggle:focus,
+.navbar-default .navbar-toggle:hover {
+    background-color: #3d648f;
+}
+
+.navbar-default .navbar-toggle:focus .icon-bar,
+.navbar-default .navbar-toggle:hover .icon-bar {
     background-color: #fff;
-    border: 1px solid #e5e5e5;
+}
+
+.navbar-default .navbar-toggle .icon-bar {
+    background-color: #3d648f;
+}
+
+label {
+    font-weight: 400;
+}
+
+legend {
+    border-bottom: 1px solid #d7e4ed;
+}
+
+.form-control {
+    border-color: #d7e4ed;
+    border-radius: 2px;
+}
+
+/**** override datatables.min.css ****/
+table.dataTable td {
+    color: #464f76;
+}
+
+table.dataTable thead th {
+    color: #3d648f;
+    background-color: #D3E1EB;
+}
+
+.table table-striped th:nth {
+    background-color: #ecf3f6;
+}
+
+table.dataTable.stripe tbody tr.odd,
+table.dataTable.display tbody tr.odd {
+    background-color: #f0f7fc;
+}
+
+table.dataTable.hover tbody tr:hover,
+table.dataTable.display tbody tr:hover {
+    background-color: #F7FDFF;
+}
+
+table.dataTable.stripe tbody tr.odd:hover,
+table.dataTable.display tbody tr.odd:hover {
+    background-color: #EAF4F7;
+}
+
+table.dataTable.display tbody tr.odd>.sorting_1,
+table.dataTable.order-column.stripe tbody tr.odd>.sorting_1 {
+    background-color: #E8F4F9;
+}
+
+table.dataTable.display tbody tr.even>.sorting_1,
+table.dataTable.order-column.stripe tbody tr.even>.sorting_1 {
+    background-color: #F7FDFF;
+}
+
+table.dataTable.display tbody tr:hover>.sorting_1,
+table.dataTable.order-column.hover tbody tr:hover>.sorting_1 {
+    background-color: #f0f7fc;
+}
+
+table.dataTable.display tbody tr.odd:hover>.sorting_1,
+table.dataTable.order-column.stripe tbody tr.odd:hover>.sorting_1 {
+    background-color: #DDEFF7;
+}
+
+table.dataTable.no-footer,
+table.dataTable thead th,
+table.dataTable thead td {
+    border-bottom: 1px solid #D3DCE6;
+}
+
+table.dataTable.row-border tbody th,
+table.dataTable.row-border tbody td,
+table.dataTable.display tbody th,
+table.dataTable.display tbody td {
+    border-top: 0;
+}
+
+.dataTables_filter {
+
+}
+
+.dataTables_filter input {
+    border-color: #d7e4ed;
+    border-radius: 2px;
+    padding: 3px 6px;
+    background-color: #fff;
+    background-image: none;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    color: #fff !important;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    border-radius: 4px;
+    background: #2e6da4;
+    padding: 0.3em 0.7em;
+}
+
+/* end */
+
+.form-signin {
+    padding: 19px 29px 29px;
+    background-color: #fff;
+    border: 1px solid #d7e4ed;
     -webkit-border-radius: 5px;
        -moz-border-radius: 5px;
             border-radius: 5px;
@@ -18,8 +158,8 @@ body {
             box-shadow: 0 1px 2px rgba(0,0,0,.05);
 }
 
-.bottom10 {
-    margin-bottom: 10px;
+.form-user {
+    padding: 15px 0;
 }
 
 td.details-control {

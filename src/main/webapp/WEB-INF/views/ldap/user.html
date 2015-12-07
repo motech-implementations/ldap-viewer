@@ -15,13 +15,14 @@
 </head>
 <body>
 <div th:replace="fragments/header :: header">&nbsp;</div>
-<div class="container">
+<div class="container-fluid">
+<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
     <!-- /* Handle the flash message */-->
     <th:block th:if="${message != null}">
         <!-- /* The message code is returned from the @Controller */ -->
         <div th:replace="fragments/alert :: alert (type=${#strings.toLowerCase(message.type)}, message=#{${message.message}(${#authentication.name})})">&nbsp;</div>
     </th:block>
-    <form method="post" th:action="@{/ldap/user}" th:object="${user}">
+    <form class="form-horizontal form-user" method="post" th:action="@{/ldap/user}" th:object="${user}">
         <div class="form-group">
             <label for="username" th:utext="#{user.username}"></label>
             <input type="text" class="form-control" id="username" placeholder="Username" th:field="*{username}"
@@ -57,15 +58,18 @@
         </div>
         <input type="hidden" id="uiEdit" th:field="*{uiEdit}"/>
         <div class="form-group">
-            <div class="col-lg-offset-2 col-lg-10">
-                <button type="submit" class="btn btn-info" th:utext="#{save}"></button>
-                <a th:href="@{/}" class="btn btn-default" role="button" th:utext="#{cancel}"></a>
+            <div class="">
                 <a th:if="${user.uiEdit}" th:href="@{/ldap/user/{username}/delete(username=${user.username})}"
                    class="btn btn-danger" role="button" th:utext="#{delete}"
-                   th:onclick="'return confirm(\'' + #{user.delete.confirm} + '\');'"></a>
+                   th:onclick="'return confirm(\'' + #{user.delete.confirm} + '\');'">
+
+                </a>
+                <button type="submit" class="btn btn-primary" th:utext="#{save}"></button>
+                <a th:href="@{/}" class="btn btn-default" role="button" th:utext="#{cancel}"></a>
             </div>
         </div>
     </form>
+</div>
 </div>
 </body>
 </html>
