@@ -13,7 +13,6 @@ import static org.springframework.context.annotation.ComponentScan.Filter;
 
 @Configuration
 @PropertySources({
-		@PropertySource("classpath:persistence.properties"),
 		@PropertySource("classpath:ldap.properties"),
 		@PropertySource(value = "file:/etc/nms-ldap.persistence", ignoreResourceNotFound = true)
 })
