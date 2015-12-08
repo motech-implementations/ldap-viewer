@@ -7,10 +7,12 @@ import org.apache.directory.ldap.client.api.LdapConnectionPool;
 import org.motechproject.nms.ldapbrowser.ldap.ex.LdapReadException;
 import org.motechproject.nms.ldapbrowser.region.RegionProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
 
+@Component
 public class ApacheDsRegionProvider implements RegionProvider {
 
     @Autowired

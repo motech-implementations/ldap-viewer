@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+    
+    <bean id="ldapConnectionConfig" class="org.apache.directory.ldap.client.api.LdapConnectionConfig">
+        <property name="ldapHost" value="${ldap.host}"/>
+        <property name="ldapPort" value="${ldap.port}"/>
+        <property name="useSsl" value="${ldap.useSsl}"/>
+        <property name="name" value="uid=${ldap.admin.username},ou=system"/>
+        <property name="credentials" value="${ldap.admin.password}"/>
+    </bean>
+
+    <bean id="ldapConnectionFactory" class="org.apache.directory.ldap.client.api.DefaultPoolableLdapConnectionFactory">
+        <constructor-arg ref="ldapConnectionConfig"/>
+    </bean>
+
+    <bean id="ldapConnectionPool" class="org.apache.directory.ldap.client.api.LdapConnectionPool">
+        <constructor-arg ref="ldapConnectionFactory"/>
+        <property name="testOnBorrow" value="true"/>
+    </bean>
+
+    <bean id="ldapFacade" class="org.motechproject.nms.ldapbrowser.ldap.apacheds.ApacheDsFacade"/>
+</beans>

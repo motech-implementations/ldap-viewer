@@ -303,4 +303,36 @@ public class EntryHelper {
     private String entryName(Entry entry) {
         return entry.getDn().getRdns().get(0).getValue();
     }
+
+    public void setRolesOu(String rolesOu) {
+        this.rolesOu = rolesOu;
+    }
+
+    public void setUsersOu(String usersOu) {
+        this.usersOu = usersOu;
+    }
+
+    public void setDc(String dc) {
+        this.dc = dc;
+    }
+
+    public void setUserClass(String userClass) {
+        this.userClass = userClass;
+    }
+
+    public void setNationalRole(String nationalRole) {
+        this.nationalRole = nationalRole;
+    }
+
+    public void setRoleSuffix(String roleSuffix) {
+        this.roleSuffix = roleSuffix;
+    }
+
+    public void setRoleClass(String roleClass) {
+        this.roleClass = roleClass;
+    }
+
+    public void setOccupantAttrName(String occupantAttrName) {
+        this.occupantAttrName = occupantAttrName;
+    }
 }
