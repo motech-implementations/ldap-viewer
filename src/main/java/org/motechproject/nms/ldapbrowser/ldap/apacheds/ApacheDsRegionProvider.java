@@ -6,17 +6,17 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
 import org.motechproject.nms.ldapbrowser.ldap.ex.LdapReadException;
 import org.motechproject.nms.ldapbrowser.region.RegionProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
 public class ApacheDsRegionProvider implements RegionProvider {
 
-    @Inject
+    @Autowired
     private LdapConnectionPool ldapPool;
 
-    @Inject
+    @Autowired
     private EntryHelper entryHelper;
 
     @Override
