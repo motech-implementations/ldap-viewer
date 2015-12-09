@@ -6,19 +6,13 @@ import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
 import org.motechproject.nms.ldapbrowser.ldap.ex.LdapReadException;
 import org.motechproject.nms.ldapbrowser.region.RegionProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
 
-@Component
 public class ApacheDsRegionProvider implements RegionProvider {
 
-    @Autowired
     private LdapConnectionPool ldapPool;
-
-    @Autowired
     private EntryHelper entryHelper;
 
     @Override
@@ -37,5 +31,13 @@ public class ApacheDsRegionProvider implements RegionProvider {
         } catch (LdapException | IOException | CursorException e) {
             throw new LdapReadException("Unable to read districts from LDAP> State: " + stateName, e);
         }
+    }
+
+    public void setLdapPool(LdapConnectionPool ldapPool) {
+        this.ldapPool = ldapPool;
+    }
+
+    public void setEntryHelper(EntryHelper entryHelper) {
+        this.entryHelper = entryHelper;
     }
 }

@@ -1,20 +1,15 @@
 package org.motechproject.nms.ldapbrowser.ldap;
 
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import javax.inject.Inject;
-
-@Component
 public class LdapUserValidator implements Validator {
 
-    @Inject
     private LdapUserService ldapUserService;
 
     @Override
-    public boolean supports(Class<?> clazz) {
+    public boolean supports(Class clazz) {
         return LdapUser.class.isAssignableFrom(clazz);
     }
 
@@ -33,5 +28,9 @@ public class LdapUserValidator implements Validator {
         if (!StringUtils.isEmpty(user.getPassword()) && user.getPassword().length() < 5) {
             errors.rejectValue("password", "user.save.error.password.short");
         }
+    }
+
+    public void setLdapUserService(LdapUserService ldapUserService) {
+        this.ldapUserService = ldapUserService;
     }
 }

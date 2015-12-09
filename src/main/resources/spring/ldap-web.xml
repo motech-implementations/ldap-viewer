@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+    <bean id="ldapUserValidator" class="org.motechproject.nms.ldapbrowser.ldap.LdapUserValidator">
+        <property name="ldapUserService" ref="ldapUserService"/>
+    </bean>
+
+    <bean id="api" class="org.pentaho.platform.web.servlet.JAXRSPluginServlet"/>
+
+    <bean id="ldapAjaxService" class="org.motechproject.nms.ldapbrowser.ldap.web.LdapAjaxService"/>
+
+    <bean id="ldapUserServlet" class="org.motechproject.nms.ldapbrowser.ldap.web.LdapUserServlet"/>
+
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="/WEB-INF/i18n/ldap_messages"/>
+    </bean>
+
+    <bean id="templateResolver" class="org.thymeleaf.templateresolver.ServletContextTemplateResolver">
+        <property name="prefix" value="/WEB-INF/views/"/>
+        <property name="suffix" value=".html/"/>
+        <property name="templateMode" value="HTML5"/>
+        <property name="cacheable" value="false"/>
+    </bean>
+
+    <bean id="templateEngine" class="org.thymeleaf.TemplateEngine">
+        <property name="templateResolver" ref="templateResolver"/>
+    </bean>
+
+</beans>

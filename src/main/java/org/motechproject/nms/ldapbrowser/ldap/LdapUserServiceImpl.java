@@ -1,23 +1,14 @@
 package org.motechproject.nms.ldapbrowser.ldap;
 
-import org.motechproject.nms.ldapbrowser.region.RegionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.util.List;
 
-@Service
 public class LdapUserServiceImpl implements LdapUserService {
 
     private static final Logger LOG = LoggerFactory.getLogger(LdapUserServiceImpl.class);
 
-    @Inject
-    private RegionService regionService;
-
-    @Inject
     private LdapFacade ldapFacade;
 
     @Override
@@ -31,7 +22,7 @@ public class LdapUserServiceImpl implements LdapUserService {
     }
 
     @Override
-    public List<LdapUser> getUsers(UsersQuery query, String currentUsername) {
+    public List<LdapUser> getUsers(UsersQuery query) {
         return ldapFacade.getUsers(getCurrentUsername(), getCurrentPassword());
     }
 
@@ -47,10 +38,16 @@ public class LdapUserServiceImpl implements LdapUserService {
     }
 
     private String getCurrentUsername() {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
+        // TODO: plugin
+        return "";
     }
 
     private String getCurrentPassword() {
-        return (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
+        // TODO: plugin
+        return "";
+    }
+
+    public void setLdapFacade(LdapFacade ldapFacade) {
+        this.ldapFacade = ldapFacade;
     }
 }

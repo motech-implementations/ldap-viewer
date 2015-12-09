@@ -8,7 +8,7 @@ public interface LdapUserService {
 
     LdapUser getUser(String username);
 
-    List<LdapUser> getUsers(UsersQuery query, String currentUsername);
+    List<LdapUser> getUsers(UsersQuery query);
 
     LdapUser saveUser(LdapUser user);
 

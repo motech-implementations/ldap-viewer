@@ -1,6 +1,7 @@
 package org.motechproject.nms.ldapbrowser.support.web;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 import java.util.List;
 

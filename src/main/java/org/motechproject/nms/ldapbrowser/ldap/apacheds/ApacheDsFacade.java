@@ -19,9 +19,7 @@ import org.motechproject.nms.ldapbrowser.ldap.ex.LdapReadException;
 import org.motechproject.nms.ldapbrowser.ldap.ex.LdapWriteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
@@ -29,19 +27,10 @@ public class ApacheDsFacade implements LdapFacade {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApacheDsFacade.class);
 
-    @Value("${ldap.host}")
     private String ldapHost;
-
-    @Value("${ldap.port}")
     private int ldapPort;
-
-    @Value("${ldap.useSsl}")
     private boolean ldapUseSsl;
-
-    @Inject
     private LdapConnectionPool adminConnectionPool;
-
-    @Inject
     private EntryHelper entryHelper;
 
     @Override
@@ -153,5 +142,25 @@ public class ApacheDsFacade implements LdapFacade {
             throw new LdapAuthException("Unable to find user: " + username);
         }
         return currentUser;
+    }
+
+    public void setLdapHost(String ldapHost) {
+        this.ldapHost = ldapHost;
+    }
+
+    public void setLdapPort(int ldapPort) {
+        this.ldapPort = ldapPort;
+    }
+
+    public void setLdapUseSsl(boolean ldapUseSsl) {
+        this.ldapUseSsl = ldapUseSsl;
+    }
+
+    public void setAdminConnectionPool(LdapConnectionPool adminConnectionPool) {
+        this.adminConnectionPool = adminConnectionPool;
+    }
+
+    public void setEntryHelper(EntryHelper entryHelper) {
+        this.entryHelper = entryHelper;
     }
 }

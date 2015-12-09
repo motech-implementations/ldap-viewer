@@ -1,7 +1,7 @@
 package org.motechproject.nms.ldapbrowser.ldap;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 public class LdapUser {
 

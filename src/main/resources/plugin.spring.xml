@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+<beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-    <context:annotation-config />
-    <context:component-scan base-package="org.motechproject.nms.ldapbrowser" />
 
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="ignoreResourceNotFound" value="true"/>
         <property name="locations">
             <list>
                 <value>classpath:ldap.properties</value>
-                <value>file:/etc/nms-ldap.persistence</value>
+                <value>classpath:application.properties</value>
+                <value>file:/etc/nms-ldap.properties</value>
             </list>
         </property>
     </bean>
 
     <import resource="classpath:spring/ldap.xml"/>
+    <import resource="classpath:spring/region.xml"/>
 
 </beans>

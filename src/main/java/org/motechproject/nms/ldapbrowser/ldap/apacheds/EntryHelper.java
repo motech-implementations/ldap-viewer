@@ -1,5 +1,6 @@
 package org.motechproject.nms.ldapbrowser.ldap.apacheds;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
@@ -16,9 +17,6 @@ import org.motechproject.nms.ldapbrowser.ldap.AttributeNames;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 import org.motechproject.nms.ldapbrowser.ldap.ex.LdapAuthException;
 import org.motechproject.nms.ldapbrowser.ldap.ex.LdapReadException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -30,33 +28,17 @@ import static org.motechproject.nms.ldapbrowser.ldap.apacheds.LdapConstants.DC;
 import static org.motechproject.nms.ldapbrowser.ldap.apacheds.LdapConstants.OBJECT_CLASS;
 import static org.motechproject.nms.ldapbrowser.ldap.apacheds.LdapConstants.OU;
 
-@Component
 public class EntryHelper {
 
     private static final int DISTRICT_RDN_COUNT = 5;
 
-    @Value("${ldap.ou.roles}")
     private String rolesOu;
-
-    @Value("${ldap.ou.users}")
     private String usersOu;
-
-    @Value("${ldap.dc}")
     private String dc;
-
-    @Value("${ldap.userClass}")
     private String userClass;
-
-    @Value("${ldap.nationalRole}")
     private String nationalRole;
-
-    @Value("${ldap.roleSuffix}")
     private String roleSuffix;
-
-    @Value("${ldap.roleClass}")
     private String roleClass;
-
-    @Value("${ldap.occupantAttrName}")
     private String occupantAttrName;
 
     public ApacheDsUser buildUser(Entry entry) {

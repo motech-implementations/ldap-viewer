@@ -1,7 +1,7 @@
 package org.motechproject.nms.ldapbrowser.ldap.apacheds;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.directory.api.ldap.model.name.Dn;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 
 public class ApacheDsUser extends LdapUser {

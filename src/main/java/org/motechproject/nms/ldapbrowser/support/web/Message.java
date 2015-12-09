@@ -12,7 +12,7 @@ public class Message implements java.io.Serializable {
     /**
      * The type of the message to be displayed. The type is used to show message in a different style.
      */
-	public static enum Type {
+	public enum Type {
         DANGER, WARNING, INFO, SUCCESS;
 	}
 

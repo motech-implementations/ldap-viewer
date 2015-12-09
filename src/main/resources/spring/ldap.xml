@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+<beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
     
     <bean id="ldapConnectionConfig" class="org.apache.directory.ldap.client.api.LdapConnectionConfig">
@@ -22,5 +21,32 @@
         <property name="testOnBorrow" value="true"/>
     </bean>
 
-    <bean id="ldapFacade" class="org.motechproject.nms.ldapbrowser.ldap.apacheds.ApacheDsFacade"/>
+    <bean id="entryHelper" class="org.motechproject.nms.ldapbrowser.ldap.apacheds.EntryHelper">
+        <property name="rolesOu" value="${ldap.ou.roles}"/>
+        <property name="usersOu" value="${ldap.ou.users}"/>
+        <property name="dc" value="${ldap.dc}"/>
+        <property name="userClass" value="${ldap.userClass}"/>
+        <property name="nationalRole" value="${ldap.nationalRole}"/>
+        <property name="roleSuffix" value="${ldap.roleSuffix}"/>
+        <property name="roleClass" value="${ldap.roleClass}"/>
+        <property name="occupantAttrName" value="${ldap.occupantAttrName}"/>
+    </bean>
+
+    <bean id="ldapFacade" class="org.motechproject.nms.ldapbrowser.ldap.apacheds.ApacheDsFacade">
+        <property name="ldapHost" value="${ldap.host}"/>
+        <property name="ldapPort" value="${ldap.port}"/>
+        <property name="ldapUseSsl" value="${ldap.useSsl}"/>
+        <property name="adminConnectionPool" ref="ldapConnectionPool"/>
+        <property name="entryHelper" ref="entryHelper"/>
+     </bean>
+
+    <bean id="ldapUserService" class="org.motechproject.nms.ldapbrowser.ldap.LdapUserServiceImpl">
+        <property name="ldapFacade" ref="ldapFacade"/>
+    </bean>
+
+    <bean id="regionProvider" class="org.motechproject.nms.ldapbrowser.ldap.apacheds.ApacheDsRegionProvider">
+        <property name="ldapPool" ref="ldapConnectionPool"/>
+        <property name="entryHelper" ref="entryHelper"/>
+    </bean>
+
 </beans>
