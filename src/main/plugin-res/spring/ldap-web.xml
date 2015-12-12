@@ -12,14 +12,17 @@
     <bean id="api" class="org.pentaho.platform.web.servlet.JAXRSPluginServlet"/>
 
     <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
-        <property name="basename" value="/WEB-INF/i18n/ldap_messages"/>
+        <property name="basename" value="/i18n/ldap_messages"/>
     </bean>
 
-    <bean id="templateResolver" class="org.thymeleaf.templateresolver.ServletContextTemplateResolver">
-        <property name="prefix" value="/WEB-INF/views/"/>
-        <property name="suffix" value=".html/"/>
+    <bean id="resourceResolver" class="org.motechproject.nms.ldapbrowser.support.web.PluginClassLoaderRessourceResolver"/>
+
+    <bean id="templateResolver" class="org.thymeleaf.templateresolver.TemplateResolver">
+        <property name="prefix" value="views/"/>
+        <property name="suffix" value=".html"/>
         <property name="templateMode" value="HTML5"/>
         <property name="cacheable" value="false"/>
+        <property name="resourceResolver" ref="resourceResolver"/>
     </bean>
 
     <bean id="templateEngine" class="org.thymeleaf.TemplateEngine">

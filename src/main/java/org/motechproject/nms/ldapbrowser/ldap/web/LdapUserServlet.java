@@ -1,5 +1,6 @@
 package org.motechproject.nms.ldapbrowser.ldap.web;
 
+import org.apache.commons.io.IOUtils;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUserService;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.AbstractPageAction;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.get.CreateUserPageAction;
@@ -19,7 +20,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class LdapUserServlet extends HttpServlet {
 
@@ -36,18 +40,21 @@ public class LdapUserServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
-        try {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             String path = req.getPathInfo();
+
             if (urlMatcher.isUserListReq(path)) {
-                userTablePage(req, resp);
+                userTablePage(req, resp, out);
             } else if (urlMatcher.isNewUserReq(path)) {
-                newUserPage(req, resp);
+                newUserPage(req, resp, out);
             } else if (urlMatcher.isEditUserReq(path)) {
-                editUserPage(req, resp);
+                editUserPage(req, resp, out);
             } else {
                 LOG.debug("Unrecognized context path: " + path);
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
+
+            writeResposne(resp, out);
         } catch (Exception e) {
             throw new ServletException("Error while executing GET request: " + req.getContextPath(), e);
         }
@@ -55,68 +62,72 @@ public class LdapUserServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             String path = req.getPathInfo();
+
             if (urlMatcher.isSaveUserReq(path)) {
-                saveUser(req, resp);
+                saveUser(req, resp, out);
             } else if (urlMatcher.isDeleteUserReq(path)) {
-                deleteUser(req, resp);
+                deleteUser(req, resp, out);
             } else {
                 LOG.debug("Unrecognized context path: " + path);
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
+
+            writeResposne(resp, out);
         } catch (Exception e) {
             throw new ServletException("Error while executing POST request: " + req.getContextPath(), e);
         }
     }
 
-    private void userTablePage(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+    private void userTablePage(HttpServletRequest req, HttpServletResponse resp, OutputStream out) throws Exception {
         UserTablePageAction action = new UserTablePageAction();
-        prepareAction(action, req, resp);
+        prepareAction(action, req, resp, out);
         action.execute();
     }
 
-    private void newUserPage(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+    private void newUserPage(HttpServletRequest req, HttpServletResponse resp, OutputStream out) throws Exception {
         CreateUserPageAction action = new CreateUserPageAction();
-        prepareAction(action, req, resp);
+        prepareAction(action, req, resp, out);
         action.execute();
     }
 
-    private void editUserPage(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+    private void editUserPage(HttpServletRequest req, HttpServletResponse resp, OutputStream out) throws Exception {
         EditUserPageAction action = new EditUserPageAction();
 
-        ActionHarness actionHarness = prepareAction(action, req, resp);
+        ActionHarness actionHarness = prepareAction(action, req, resp, out);
         String username = urlMatcher.extractUsernameForEdit(req.getContextPath());
         actionHarness.setValue(USERNAME, username);
 
         action.execute();
     }
 
-    private void deleteUser(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+    private void deleteUser(HttpServletRequest req, HttpServletResponse resp, OutputStream out) throws Exception {
         DeleteUserAction action = new DeleteUserAction();
 
-        ActionHarness actionHarness = prepareAction(action, req, resp);
+        ActionHarness actionHarness = prepareAction(action, req, resp, out);
         String username = urlMatcher.extractUsernameForDelete(req.getContextPath());
         actionHarness.setValue(USERNAME, username);
 
         action.execute();
     }
 
-    private void saveUser(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+    private void saveUser(HttpServletRequest req, HttpServletResponse resp, OutputStream out) throws Exception {
         SaveUserAction action = new SaveUserAction();
 
-        ActionHarness actionHarness = prepareAction(action, req, resp);
+        ActionHarness actionHarness = prepareAction(action, req, resp, out);
         actionHarness.setValue(VALIDATOR, validator);
 
         action.execute();
     }
 
-    private ActionHarness prepareAction(AbstractPageAction action, HttpServletRequest req, HttpServletResponse resp) throws Exception {
+    private ActionHarness prepareAction(AbstractPageAction action, HttpServletRequest req,
+                                        HttpServletResponse resp, OutputStream out) throws Exception {
         ActionHarness actionHarness = new ActionHarness(action);
 
         actionHarness.setValues(req.getParameterMap());
 
-        actionHarness.setValue("outputStream", resp.getOutputStream());
+        actionHarness.setValue("outputStream", out);
         actionHarness.setValue("inputStream", req.getInputStream());
         //TODO:
         //actionHarness.setCurrentUsername("TODO");
@@ -128,6 +139,13 @@ public class LdapUserServlet extends HttpServlet {
         actionHarness.setValue("thymeleafContext", thCtx);
 
         return actionHarness;
+    }
+
+    private void writeResposne(HttpServletResponse resp, ByteArrayOutputStream out) throws IOException {
+        resp.setContentLength(out.size());
+        resp.setContentType(MediaType.TEXT_HTML);
+
+        IOUtils.write(out.toByteArray(), resp.getOutputStream());
     }
 
     public void setLdapUserService(LdapUserService ldapUserService) {

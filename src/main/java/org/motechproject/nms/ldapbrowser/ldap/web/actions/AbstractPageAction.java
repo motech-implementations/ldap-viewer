@@ -8,9 +8,11 @@ import org.pentaho.platform.api.action.IStreamingAction;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.Collections;
 
 public abstract class AbstractPageAction implements IStreamingAction {
@@ -108,7 +110,9 @@ public abstract class AbstractPageAction implements IStreamingAction {
         thymeleafContext.setVariable(varName, value);
     }
 
-    protected void printView(String viewName) {
-        templateEngine.process(viewName, thymeleafContext, new PrintWriter(outputStream));
+    protected void printView(String viewName) throws IOException {
+        Writer writer = new PrintWriter(outputStream);
+        templateEngine.process(viewName, thymeleafContext, writer);
+        writer.flush();
     }
 }
