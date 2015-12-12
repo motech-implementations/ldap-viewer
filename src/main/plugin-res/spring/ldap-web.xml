@@ -31,7 +31,7 @@
         <property name="regionService" ref="regionService"/>
     </bean>
 
-    <bean id="ldapUserServlet" class="org.motechproject.nms.ldapbrowser.ldap.web.LdapUserServlet">
+    <bean id="ldap-users" class="org.motechproject.nms.ldapbrowser.ldap.web.LdapUserServlet">
         <property name="ldapUserService" ref="ldapUserService"/>
         <property name="regionService" ref="regionService"/>
         <property name="validator" ref="ldapUserValidator"/>

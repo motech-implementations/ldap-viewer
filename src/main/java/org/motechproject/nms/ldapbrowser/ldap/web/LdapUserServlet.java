@@ -1,7 +1,5 @@
 package org.motechproject.nms.ldapbrowser.ldap.web;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUserService;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.AbstractPageAction;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.get.CreateUserPageAction;
@@ -11,6 +9,8 @@ import org.motechproject.nms.ldapbrowser.ldap.web.actions.post.SaveUserAction;
 import org.motechproject.nms.ldapbrowser.ldap.web.validator.LdapUserValidator;
 import org.motechproject.nms.ldapbrowser.region.RegionService;
 import org.pentaho.platform.util.beans.ActionHarness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 
@@ -22,7 +22,7 @@ import java.io.IOException;
 
 public class LdapUserServlet extends HttpServlet {
 
-    private static final Log LOG = LogFactory.getLog(LdapUserServlet.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LdapUserServlet.class);
 
     private static final String USERNAME = "username";
     private static final String VALIDATOR = "validator";

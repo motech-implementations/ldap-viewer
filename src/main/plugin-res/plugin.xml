@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin title="nms-users">
+  
+
+    <!-- 
+    2. here, we are making the platform aware of a static resource that our plugin provides.  The echo-res path
+         is referenced above in the content-type definition.  Specifically, the icon is being served statically via
+         this path 
+    -->
+    <static-paths>
+      <static-path url="/nms-users-res" localFolder="webapp/resources"/>
+    </static-paths>  
+    
+<!--    <external-resources>
+        <file context="mantle">content/echo-res/script/js/echo-datasource-service.js</file>
+        <file context="mantle">content/echo-res/script/js/ui.core.js</file>
+        <file context="mantle">content/echo-res/script/js/ui.dialog.js</file>
+        <file context="mantle">content/echo-res/script/js/ui.draggable.js</file>
+        <file context="mantle">content/echo-res/script/js/ui.resizable.js</file>
+        <file context="mantle">content/echo-res/css/demos.css</file>
+        <file context="mantle">content/echo-res/css/jquery-ui.css</file>
+        <file context="mantle">content/echo-res/css/ui.all.css</file>
+    </external-resources>-->
+    
+    
+    <!-- continue config with plugin.spring.xml -->
+    
+</plugin>
