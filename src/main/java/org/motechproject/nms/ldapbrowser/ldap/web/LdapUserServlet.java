@@ -74,7 +74,7 @@ public class LdapUserServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
 
-            writeResposne(resp, out);
+
         } catch (Exception e) {
             throw new ServletException("Error while executing POST request: " + req.getContextPath(), e);
         }
@@ -129,8 +129,8 @@ public class LdapUserServlet extends HttpServlet {
 
         actionHarness.setValue("outputStream", out);
         actionHarness.setValue("inputStream", req.getInputStream());
-        //TODO:
-        //actionHarness.setCurrentUsername("TODO");
+
+        actionHarness.setValue("currentUsername", req.getUserPrincipal().getName());
         actionHarness.setValue("ldapUserService", ldapUserService);
         actionHarness.setValue("regionService", regionService);
         actionHarness.setValue("templateEngine", templateEngine);

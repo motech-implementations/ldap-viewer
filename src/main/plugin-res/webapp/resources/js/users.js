@@ -1,9 +1,12 @@
 $(document).ready( function () {
+
+    var api = $('meta[name=userapi]').attr("content");
+
     var table = $('#user_table').DataTable({
         "processing": true,
         "serverSide": false,
         "ajax": {
-            "url": "ldap/users",
+            "url": api,
             "type": "POST",
             "contentType": "application/json",
             "data": function ( d ) {

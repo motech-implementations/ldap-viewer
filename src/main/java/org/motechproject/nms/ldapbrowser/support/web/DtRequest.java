@@ -3,8 +3,10 @@ package org.motechproject.nms.ldapbrowser.support.web;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
+@XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DtRequest {
 
@@ -56,6 +58,7 @@ public class DtRequest {
         this.columns = columns;
     }
 
+    @XmlRootElement
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Order {
         private int column;
@@ -78,6 +81,7 @@ public class DtRequest {
         }
     }
 
+    @XmlRootElement
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Column {
         private boolean orderable;

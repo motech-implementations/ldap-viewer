@@ -2,6 +2,7 @@ package org.motechproject.nms.ldapbrowser.ldap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.context.SecurityContextHolder;
 
 import java.util.List;
 
@@ -38,13 +39,11 @@ public class LdapUserServiceImpl implements LdapUserService {
     }
 
     private String getCurrentUsername() {
-        // TODO: plugin
-        return "";
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
     private String getCurrentPassword() {
-        // TODO: plugin
-        return "";
+        return (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
     }
 
     public void setLdapFacade(LdapFacade ldapFacade) {

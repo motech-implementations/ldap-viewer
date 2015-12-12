@@ -16,8 +16,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
-
-@Path("/ldap/api/")
+@Path("/nms-users/api")
 public class LdapAjaxService {
 
     private LdapUserService ldapUserService;

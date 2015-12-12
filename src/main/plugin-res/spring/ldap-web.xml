@@ -9,10 +9,12 @@
 
     <bean id="urlMatcher" class="org.motechproject.nms.ldapbrowser.ldap.web.UrlMatcher"/>
 
-    <bean id="api" class="org.pentaho.platform.web.servlet.JAXRSPluginServlet"/>
-
     <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
-        <property name="basename" value="/i18n/ldap_messages"/>
+        <property name="basename" value="i18n/ldap_messages"/>
+    </bean>
+
+    <bean id="messageResolver" class="org.motechproject.nms.ldapbrowser.support.web.MessageResolver">
+        <property name="messageSource" ref="messageSource"/>
     </bean>
 
     <bean id="resourceResolver" class="org.motechproject.nms.ldapbrowser.support.web.PluginClassLoaderRessourceResolver"/>
@@ -27,7 +29,10 @@
 
     <bean id="templateEngine" class="org.thymeleaf.TemplateEngine">
         <property name="templateResolver" ref="templateResolver"/>
+        <property name="messageResolver" ref="messageResolver"/>
     </bean>
+
+    <bean id="api" class="org.pentaho.platform.web.servlet.JAXRSPluginServlet"/>
 
     <bean id="ldapAjaxService" class="org.motechproject.nms.ldapbrowser.ldap.web.LdapAjaxService">
         <property name="ldapUserService" ref="ldapUserService"/>
