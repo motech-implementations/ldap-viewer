@@ -4,6 +4,7 @@ import org.motechproject.nms.ldapbrowser.ldap.LdapUserService;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.AbstractPageAction;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.get.CreateUserPageAction;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.get.EditUserPageAction;
+import org.motechproject.nms.ldapbrowser.ldap.web.actions.get.UserTablePageAction;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.post.DeleteUserAction;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.post.SaveUserAction;
 import org.motechproject.nms.ldapbrowser.ldap.web.validator.LdapUserValidator;
@@ -36,13 +37,15 @@ public class LdapUserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
         try {
-            String ctxPath = req.getContextPath();
-            if (urlMatcher.isNewUserReq(ctxPath)) {
+            String path = req.getPathInfo();
+            if (urlMatcher.isUserListReq(path)) {
+                userTablePage(req, resp);
+            } else if (urlMatcher.isNewUserReq(path)) {
                 newUserPage(req, resp);
-            } else if (urlMatcher.isEditUserReq(ctxPath)) {
+            } else if (urlMatcher.isEditUserReq(path)) {
                 editUserPage(req, resp);
             } else {
-                LOG.debug("Unrecognized context path: " + ctxPath);
+                LOG.debug("Unrecognized context path: " + path);
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
         } catch (Exception e) {
@@ -53,13 +56,13 @@ public class LdapUserServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            String ctxPath = req.getContextPath();
-            if (urlMatcher.isSaveUserReq(ctxPath)) {
+            String path = req.getPathInfo();
+            if (urlMatcher.isSaveUserReq(path)) {
                 saveUser(req, resp);
-            } else if (urlMatcher.isDeleteUserReq(ctxPath)) {
+            } else if (urlMatcher.isDeleteUserReq(path)) {
                 deleteUser(req, resp);
             } else {
-                LOG.debug("Unrecognized context path: " + ctxPath);
+                LOG.debug("Unrecognized context path: " + path);
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
         } catch (Exception e) {
@@ -67,6 +70,11 @@ public class LdapUserServlet extends HttpServlet {
         }
     }
 
+    private void userTablePage(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+        UserTablePageAction action = new UserTablePageAction();
+        prepareAction(action, req, resp);
+        action.execute();
+    }
 
     private void newUserPage(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         CreateUserPageAction action = new CreateUserPageAction();

@@ -18,7 +18,7 @@
 
     <bean id="ldapConnectionPool" class="org.apache.directory.ldap.client.api.LdapConnectionPool">
         <constructor-arg ref="ldapConnectionFactory"/>
-        <property name="testOnBorrow" value="true"/>
+        <!--<property name="testOnBorrow" value="true"/>-->
     </bean>
 
     <bean id="entryHelper" class="org.motechproject.nms.ldapbrowser.ldap.apacheds.EntryHelper">
