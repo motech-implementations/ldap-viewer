@@ -17,5 +17,6 @@
 
     <import resource="classpath:spring/ldap.xml"/>
     <import resource="classpath:spring/region.xml"/>
+    <import resource="classpath:spring/ldap-web.xml"/>
 
 </beans>

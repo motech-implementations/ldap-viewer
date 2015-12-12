@@ -3,15 +3,13 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
-    <bean id="ldapUserValidator" class="org.motechproject.nms.ldapbrowser.ldap.LdapUserValidator">
+    <bean id="ldapUserValidator" class="org.motechproject.nms.ldapbrowser.ldap.web.validator.LdapUserValidator">
         <property name="ldapUserService" ref="ldapUserService"/>
     </bean>
 
+    <bean id="urlMatcher" class="org.motechproject.nms.ldapbrowser.ldap.web.UrlMatcher"/>
+
     <bean id="api" class="org.pentaho.platform.web.servlet.JAXRSPluginServlet"/>
-
-    <bean id="ldapAjaxService" class="org.motechproject.nms.ldapbrowser.ldap.web.LdapAjaxService"/>
-
-    <bean id="ldapUserServlet" class="org.motechproject.nms.ldapbrowser.ldap.web.LdapUserServlet"/>
 
     <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
         <property name="basename" value="/WEB-INF/i18n/ldap_messages"/>
@@ -26,6 +24,19 @@
 
     <bean id="templateEngine" class="org.thymeleaf.TemplateEngine">
         <property name="templateResolver" ref="templateResolver"/>
+    </bean>
+
+    <bean id="ldapAjaxService" class="org.motechproject.nms.ldapbrowser.ldap.web.LdapAjaxService">
+        <property name="ldapUserService" ref="ldapUserService"/>
+        <property name="regionService" ref="regionService"/>
+    </bean>
+
+    <bean id="ldapUserServlet" class="org.motechproject.nms.ldapbrowser.ldap.web.LdapUserServlet">
+        <property name="ldapUserService" ref="ldapUserService"/>
+        <property name="regionService" ref="regionService"/>
+        <property name="validator" ref="ldapUserValidator"/>
+        <property name="templateEngine" ref="templateEngine"/>
+        <property name="urlMatcher" ref="urlMatcher"/>
     </bean>
 
 </beans>
