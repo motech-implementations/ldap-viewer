@@ -1,7 +1,6 @@
 # NMS LDAP Manager
-LDAP user manager for NMS
+LDAP user manager for NMS - a Pentaho plugin.
 
-Default MySQL credentials used: root/password
-Default MySQL database used: nms_ldap - must be created beforehand
+Run mvn clean install to build a zip file. This file should get unzipped to the Pentaho solutions system directory.
+Look at install.sh for an installation example.
 
-To run locally, use mvn test tomcat7:run - this should reload static files dynamically
