@@ -12,7 +12,7 @@
                 <treeitem id="nms-users" container="true"
                           command="mantleXulHandler.loadAdminContent('nms-users', 'plugin/nms-users/ldap')">
                     <treerow>
-                        <treecell label="${title}"/>q
+                        <treecell label="${title}"/>
                     </treerow>
                 </treeitem>
             </treechildren>
