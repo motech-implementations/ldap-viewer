@@ -14,6 +14,8 @@ import org.apache.directory.api.ldap.model.name.Rdn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.search.FilterBuilder;
 import org.motechproject.nms.ldapbrowser.ldap.AttributeNames;
+import org.motechproject.nms.ldapbrowser.ldap.LdapLocation;
+import org.motechproject.nms.ldapbrowser.ldap.LdapRole;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 import org.motechproject.nms.ldapbrowser.ldap.ex.LdapAuthException;
 import org.motechproject.nms.ldapbrowser.ldap.ex.LdapReadException;
@@ -39,9 +41,11 @@ public class EntryHelper {
     private String nationalRole;
     private String roleSuffix;
     private String roleClass;
+    private String adminRoleClass;
     private String occupantAttrName;
+    private String memberAttrName;
 
-    public ApacheDsUser buildUser(Entry entry) {
+    public ApacheDsUser buildUser(Entry entry, EntryCursor roleCursor) throws CursorException, LdapException {
         ApacheDsUser ldapUser = new ApacheDsUser();
 
         ldapUser.setUsername(entryName(entry));
@@ -50,18 +54,18 @@ public class EntryHelper {
         ldapUser.setMobileNumber(getAttributeStrVal(entry, AttributeNames.MOBILE_NUMBER));
         ldapUser.setWorkNumber(getAttributeStrVal(entry, AttributeNames.WORK_NUMBER));
 
-        setStateAndDistrict(entry, ldapUser);
+        setStateAndDistrict(entry, ldapUser, roleCursor);
 
         ldapUser.setDn(entry.getDn());
 
         // TODO: improve
-        ldapUser.setAdmin(entry.getDn().toString().contains("ou=" + rolesOu));
+        //ldapUser.setAdmin(entry.getDn().toString().contains("ou=" + rolesOu));
 
         return ldapUser;
     }
 
     public EntryCursor searchForAdmins(LdapConnection connection) throws LdapException {
-        String baseDn = ouDcStr(rolesOu);
+        String baseDn = ouDcStr(usersOu);
         String filter = FilterBuilder.equal(OBJECT_CLASS, userClass).toString();
 
         return connection.search(baseDn, filter, SearchScope.SUBTREE);
@@ -74,7 +78,7 @@ public class EntryHelper {
         String oudc = ouDcStr(rolesOu);
 
         String baseDn = stateDistrictPart + oudc;
-        String filter = FilterBuilder.equal(OBJECT_CLASS, roleClass).toString();
+        String filter = FilterBuilder.or(FilterBuilder.equal(OBJECT_CLASS, roleClass), FilterBuilder.equal(OBJECT_CLASS, adminRoleClass)).toString();
 
         EntryCursor roleCursor = connection.search(baseDn, filter, SearchScope.SUBTREE);
 
@@ -131,8 +135,6 @@ public class EntryHelper {
         sb.append(nationalRole);
 
         sb.append(',').append(OU);
-        sb.append(user.isAdmin() ? rolesOu : usersOu);
-
         sb.append(',').append(DC).append(dc);
 
         return sb.toString();
@@ -141,12 +143,19 @@ public class EntryHelper {
     public LdapUser getUser(LdapConnection connection, String dn) throws LdapException, CursorException {
         String filter = FilterBuilder.equal(OBJECT_CLASS, userClass).toString();
         EntryCursor cursor = connection.search(dn, filter, SearchScope.OBJECT);
+        EntryCursor roleCursor = getAllRolesCursor(connection);
 
         if (cursor.next()) {
-            return buildUser(cursor.get());
+            return buildUser(cursor.get(), roleCursor);
         } else {
             return null;
         }
+    }
+
+    public EntryCursor getAllRolesCursor(LdapConnection connection) throws LdapException, CursorException {
+        String oudc = ouDcStr(usersOu);
+        String roleFilter = FilterBuilder.or(FilterBuilder.equal(OBJECT_CLASS, roleClass), FilterBuilder.equal(OBJECT_CLASS, adminRoleClass)).toString();
+        return connection.search(oudc, roleFilter, SearchScope.SUBTREE);
     }
 
     public List<String> stateNames(LdapConnection connection) throws LdapException, CursorException {
@@ -198,11 +207,21 @@ public class EntryHelper {
         }
     }
 
-    private void setStateAndDistrict(Entry entry, LdapUser user) {
+    private void setStateAndDistrict(Entry entry, LdapUser user, EntryCursor roleCursor) throws LdapException, CursorException {
         Dn dn = entry.getDn();
         List<Rdn> rdns = dn.getRdns();
         // remove the username rdn
         List<Rdn> rdnHolderList = new LinkedList<>(rdns.subList(1, rdns.size()));
+
+        while (roleCursor.next()) {
+            Entry roleEntry = roleCursor.get();
+            List<String> dns = userDnsFromRole(entry);
+
+            if (dns.contains(dn)) {
+                LdapLocation location = getLocationFromRdns(roleEntry.getDn().getRdns());
+                user.getRoles().add(new LdapRole(location.getState(), location.getDistrict(), location.getDistrict().contains("Admin")));
+            }
+        }
 
         // leave only cn entries
         Iterator<Rdn> it = rdnHolderList.iterator();
@@ -213,23 +232,31 @@ public class EntryHelper {
             }
         }
 
-        // determine rights
+        // home district and state
+        LdapLocation location = getLocationFromRdns(rdnHolderList);
+        user.setDistrict(location.getDistrict());
+        user.setState(location.getState());
+    }
 
+    private LdapLocation getLocationFromRdns(List<Rdn> rdnHolderList) {
+        LdapLocation location = new LdapLocation();
         if (rdnHolderList.size() == 1) {
             // national view
-            user.setState(LdapUser.ALL);
-            user.setDistrict(LdapUser.ALL);
+            location.setState(LdapUser.ALL);
+            location.setDistrict(LdapUser.ALL);
         } else if (rdnHolderList.size() == 2) {
             // state view
-            user.setState(parseRole(rdnHolderList.get(0).getValue()));
-            user.setDistrict(LdapUser.ALL);
+            location.setState(parseRole(rdnHolderList.get(0).getValue()));
+            location.setDistrict(LdapUser.ALL);
         } else if (rdnHolderList.size() == 3) {
             // district view
-            user.setState(parseRole(rdnHolderList.get(0).getValue()));
-            user.setDistrict(parseRole(rdnHolderList.get(1).getValue()));
+            location.setState(parseRole(rdnHolderList.get(0).getValue()));
+            location.setDistrict(parseRole(rdnHolderList.get(1).getValue()));
         } else {
             throw new LdapAuthException("Illegal user state, number of cn entries: " + rdnHolderList.size());
         }
+
+        return location;
     }
 
     private String parseRole(String avaVal) {
@@ -270,8 +297,18 @@ public class EntryHelper {
     private List<String> userDnsFromRole(Entry roleEntry) {
         List<String> dns = new ArrayList<>();
         Attribute occupantAttr = roleEntry.get(occupantAttrName);
+        Attribute memberAttr = roleEntry.get(memberAttrName);
+
+        // View roles
         if (occupantAttr != null) {
             for (org.apache.directory.api.ldap.model.entry.Value val : occupantAttr) {
+                dns.add(val.getString());
+            }
+        }
+
+        // User roles
+        if (memberAttr != null) {
+            for (org.apache.directory.api.ldap.model.entry.Value val : memberAttr) {
                 dns.add(val.getString());
             }
         }
@@ -316,5 +353,13 @@ public class EntryHelper {
 
     public void setOccupantAttrName(String occupantAttrName) {
         this.occupantAttrName = occupantAttrName;
+    }
+
+    public void setAdminRoleClass(String adminRoleClass) {
+        this.adminRoleClass = adminRoleClass;
+    }
+
+    public void setMemberAttrName(String memberAttrName) {
+        this.memberAttrName = memberAttrName;
     }
 }

@@ -1,6 +1,5 @@
 package org.motechproject.nms.ldapbrowser.ldap.web.actions;
 
-import org.apache.commons.lang.StringUtils;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUserService;
 import org.motechproject.nms.ldapbrowser.region.RegionService;
@@ -83,23 +82,23 @@ public abstract class AbstractPageAction implements IStreamingAction {
     }
 
     protected void addRegionalDataToModel(LdapUser currentUser, LdapUser editedUser) {
-        if (currentUser.isNationalLevel()) {
-            thymeleafContext.setVariable(STATES, regionService.availableStateNames());
-            // load districts if a state is selected
-            if (!StringUtils.isEmpty(editedUser.getState())) {
-                thymeleafContext.setVariable(DISTRICTS, regionService.availableDistrictNames(editedUser.getState()));
-            }
-        } else if (currentUser.isStateLevel()) {
-            // one state and a list of districts in this case
-            thymeleafContext.setVariable(STATES, Collections.singletonList(currentUser.getState()));
-            thymeleafContext.setVariable(DISTRICTS, regionService.availableDistrictNames(currentUser.getState()));
-        } else if (currentUser.isDistrictLevel()) {
-            // one state and one district
-            thymeleafContext.setVariable(STATES, Collections.singletonList(currentUser.getState()));
-            thymeleafContext.setVariable(DISTRICTS, Collections.singletonList(currentUser.getDistrict()));
-        } else {
-            throw new IllegalStateException("User " + currentUser.getName() + " has wrong admin state");
-        }
+//        if (currentUser.isNationalLevel()) {
+//            thymeleafContext.setVariable(STATES, regionService.availableStateNames());
+//            // load districts if a state is selected
+//            if (!StringUtils.isEmpty(editedUser.getState())) {
+//                thymeleafContext.setVariable(DISTRICTS, regionService.availableDistrictNames(editedUser.getState()));
+//            }
+//        } else if (currentUser.isStateLevel()) {
+//            // one state and a list of districts in this case
+//            thymeleafContext.setVariable(STATES, Collections.singletonList(currentUser.getState()));
+//            thymeleafContext.setVariable(DISTRICTS, regionService.availableDistrictNames(currentUser.getState()));
+//        } else if (currentUser.isDistrictLevel()) {
+//            // one state and one district
+//            thymeleafContext.setVariable(STATES, Collections.singletonList(currentUser.getState()));
+//            thymeleafContext.setVariable(DISTRICTS, Collections.singletonList(currentUser.getDistrict()));
+//        } else {
+//            throw new IllegalStateException("User " + currentUser.getName() + " has wrong admin state");
+//        }
     }
 
     protected LdapUser getCurrentUser() {

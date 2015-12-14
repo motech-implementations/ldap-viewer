@@ -27,9 +27,13 @@
         <property name="dc" value="${ldap.dc}"/>
         <property name="userClass" value="${ldap.userClass}"/>
         <property name="nationalRole" value="${ldap.nationalRole}"/>
+        <!-- <property name="nationalUserAdminRole" value="${ldap.nationalUserAdminRole}"/> -->
         <property name="roleSuffix" value="${ldap.roleSuffix}"/>
+        <!-- <property name="adminRoleSuffix" value="${ldap.adminRoleSuffix}"/> -->
         <property name="roleClass" value="${ldap.roleClass}"/>
+        <property name="adminRoleClass" value="${ldap.adminRoleClass}"/>
         <property name="occupantAttrName" value="${ldap.occupantAttrName}"/>
+        <property name="memberAttrName" value="${ldap.memberAttrName}"/>
     </bean>
 
     <bean id="ldapFacade" class="org.motechproject.nms.ldapbrowser.ldap.apacheds.ApacheDsFacade">

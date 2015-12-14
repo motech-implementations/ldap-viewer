@@ -16,18 +16,18 @@ public class DummyLdapFacade implements LdapFacade {
 
     @PostConstruct
     public void init() {
-        users.add(new LdapUser("admin", "password", "National Admin", "nadmin@motechproject.org",
-                null, null, true));
-        users.add(new LdapUser("nviewer", "password", "National Viewer", "nviewer@motechproject.org",
-                null, null, false));
-        users.add(new LdapUser("sadmin", "password", "DELHI Admin", "sadmin@motechproject.org",
-                "DELHI", null, true));
-        users.add(new LdapUser("sviewer", "password", "DELHI Viewer", "sviewer@motechproject.org",
-                "DELHI", null, false));
-        users.add(new LdapUser("dadmin", "password", "District Admin", "dadmin@motechproject.org",
-                "DELHI", "Saket", true));
-        users.add(new LdapUser("dviewer", "password", "District Viewer", "dviewer@motechproject.org",
-                "DELHI", "Saket", false));
+//        users.add(new LdapUser("admin", "password", "National Admin", "nadmin@motechproject.org",
+//                null, null, true));
+//        users.add(new LdapUser("nviewer", "password", "National Viewer", "nviewer@motechproject.org",
+//                null, null, false));
+//        users.add(new LdapUser("sadmin", "password", "DELHI Admin", "sadmin@motechproject.org",
+//                "DELHI", null, true));
+//        users.add(new LdapUser("sviewer", "password", "DELHI Viewer", "sviewer@motechproject.org",
+//                "DELHI", null, false));
+//        users.add(new LdapUser("dadmin", "password", "District Admin", "dadmin@motechproject.org",
+//                "DELHI", "Saket", true));
+//        users.add(new LdapUser("dviewer", "password", "District Viewer", "dviewer@motechproject.org",
+//                "DELHI", "Saket", false));
     }
 
     @Override

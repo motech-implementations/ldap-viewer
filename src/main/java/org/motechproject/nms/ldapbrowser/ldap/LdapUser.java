@@ -3,6 +3,9 @@ package org.motechproject.nms.ldapbrowser.ldap;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LdapUser {
 
     public static final String ALL = "ALL";
@@ -11,26 +14,25 @@ public class LdapUser {
     private String password;
     private String name;
     private String email;
-    private String state;
     private String district;
+    private String state;
+    private List<LdapRole> roles;
     private String workNumber;
     private String mobileNumber;
-    private boolean admin;
     private boolean uiEdit;
 
     public LdapUser() {
-        this.state = ALL;
-        this.district = ALL;
+        this.roles = new ArrayList<>();
     }
 
-    public LdapUser(String username, String password, String name, String email, String state, String district, boolean admin) {
+    public LdapUser(String username, String password, String name, String email, String state, String district) {
+        this();
         this.username = username;
         this.password = password;
         this.name = name;
         this.email = email;
-        this.state = StringUtils.isEmpty(state) ? ALL : state;
-        this.district = StringUtils.isEmpty(district) ? ALL : district;
-        this.admin = admin;
+        this.state = state;
+        this.district = district;
     }
 
     public String getUsername() {
@@ -65,30 +67,6 @@ public class LdapUser {
         this.email = email;
     }
 
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = StringUtils.isEmpty(state) ? ALL : state;
-    }
-
-    public String getDistrict() {
-        return district;
-    }
-
-    public void setDistrict(String district) {
-        this.district = StringUtils.isEmpty(district) ? ALL : district;
-    }
-
-    public boolean isAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
-    }
-
     public boolean isUiEdit() {
         return uiEdit;
     }
@@ -113,18 +91,28 @@ public class LdapUser {
         this.mobileNumber = mobileNumber;
     }
 
-    @JsonIgnore
-    public boolean isNationalLevel() {
-        return ALL.equals(district) && ALL.equals(state);
+    public List<LdapRole> getRoles() {
+        return roles;
     }
 
-    @JsonIgnore
-    public boolean isStateLevel() {
-        return ALL.equals(district) && !ALL.equals(state);
+    public void setRoles(List<LdapRole> roles) {
+        this.roles = roles;
     }
 
-    @JsonIgnore
-    public boolean isDistrictLevel() {
-        return !ALL.equals(district) && !ALL.equals(state);
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(String district) {
+        this.district = district;
     }
 }
+

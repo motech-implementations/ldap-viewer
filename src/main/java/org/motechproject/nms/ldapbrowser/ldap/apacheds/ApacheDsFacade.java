@@ -50,11 +50,9 @@ public class ApacheDsFacade implements LdapFacade {
                 Entry entry = cursor.get();
                 String ldapUserName = entryHelper.getUsername(entry);
                 if (username.equals(ldapUserName)) {
-                    // TODO: Multi state
-                    return entryHelper.buildUser(entry);
+                    return entryHelper.buildUser(entry, entryHelper.getAllRolesCursor(connection));
                 }
             }
-
             return null;
         } catch (LdapException | CursorException e) {
             throw new LdapAuthException("Unable to search for users in LDAP", e);
