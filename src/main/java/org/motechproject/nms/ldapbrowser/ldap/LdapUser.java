@@ -1,11 +1,12 @@
 package org.motechproject.nms.ldapbrowser.ldap;
 
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jackson.annotate.JsonIgnore;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
+@XmlRootElement
 public class LdapUser {
 
     public static final String ALL = "ALL";
@@ -56,11 +57,11 @@ public class LdapUser {
     }
 
     public String getName() {
-        return name;
+        return StringUtils.defaultString(name);
     }
 
     public String getEmail() {
-        return email;
+        return StringUtils.defaultString(email);
     }
 
     public void setEmail(String email) {

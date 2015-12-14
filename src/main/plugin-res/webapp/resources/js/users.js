@@ -23,9 +23,6 @@ $(document).ready( function () {
             { "data": "username"},
             { "data": "name"},
             { "data": "email"},
-            { "data": "admin"},
-            { "data": "state"},
-            { "data": "district"}
         ]
     });
 
