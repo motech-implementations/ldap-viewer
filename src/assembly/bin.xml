@@ -1,11 +1,14 @@
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
+
     <id>plugin</id>
+
     <formats>
         <format>zip</format>
         <format>tar.gz</format>
     </formats>
+
     <fileSets>
         <fileSet>
             <directory>target</directory>
@@ -18,7 +21,13 @@
             <directory>src/main/plugin-res</directory>
             <outputDirectory/>
         </fileSet>
+        <!-- i18n is available both from the jar and as a static Pentaho resource -->
+        <fileSet>
+            <directory>src/main/resources/i18n</directory>
+            <outputDirectory>webapp/resources/i18n</outputDirectory>
+        </fileSet>
     </fileSets>
+
     <dependencySets>
         <dependencySet>
             <outputDirectory>lib</outputDirectory>
@@ -27,4 +36,5 @@
             <scope>runtime</scope>
         </dependencySet>
     </dependencySets>
+
 </assembly>
