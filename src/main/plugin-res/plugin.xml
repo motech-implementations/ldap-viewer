@@ -19,4 +19,9 @@
         </overlay>
     </overlays>
 
+    <perspective id="nmsusers.perspective" title="${title}" layout-priority="-1"
+                 resourcebundle="content/nms-users-res/i18n/ldap_messages"
+                 content-url="plugin/nms-users/ldap"/>
+                 <!--required-security-action="org.pentaho.security.administerSecurity"-->
+
 </plugin>
