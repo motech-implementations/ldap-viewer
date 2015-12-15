@@ -22,8 +22,10 @@ import org.motechproject.nms.ldapbrowser.ldap.ex.LdapReadException;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import static org.motechproject.nms.ldapbrowser.ldap.apacheds.LdapConstants.CN;
 import static org.motechproject.nms.ldapbrowser.ldap.apacheds.LdapConstants.DC;
@@ -58,9 +60,6 @@ public class EntryHelper {
 
         ldapUser.setDn(entry.getDn());
 
-        // TODO: improve
-        //ldapUser.setAdmin(entry.getDn().toString().contains("ou=" + rolesOu));
-
         return ldapUser;
     }
 
@@ -71,13 +70,10 @@ public class EntryHelper {
         return connection.search(baseDn, filter, SearchScope.SUBTREE);
     }
 
-    public List<LdapUser> getAllUsers(LdapConnection connection, String state, String district) throws LdapException, CursorException {
-        List<LdapUser> users = new ArrayList<>();
+    public List<LdapUser> getAllUsers(LdapConnection connection) throws LdapException, CursorException {
+        Set<LdapUser> users = new LinkedHashSet<>();
 
-        String stateDistrictPart = stateAndDistrictToDnPart(state, district);
-        String oudc = ouDcStr(rolesOu);
-
-        String baseDn = stateDistrictPart + oudc;
+        String baseDn = ouDcStr(rolesOu);
         String filter = FilterBuilder.or(FilterBuilder.equal(OBJECT_CLASS, roleClass), FilterBuilder.equal(OBJECT_CLASS, adminRoleClass)).toString();
 
         EntryCursor roleCursor = connection.search(baseDn, filter, SearchScope.SUBTREE);
@@ -94,7 +90,7 @@ public class EntryHelper {
             }
         }
 
-        return users;
+        return new ArrayList<>(users);
     }
 
     public String getUsername(Entry entry) {
@@ -153,7 +149,7 @@ public class EntryHelper {
     }
 
     public EntryCursor getAllRolesCursor(LdapConnection connection) throws LdapException, CursorException {
-        String oudc = ouDcStr(usersOu);
+        String oudc = ouDcStr(rolesOu);
         String roleFilter = FilterBuilder.or(FilterBuilder.equal(OBJECT_CLASS, roleClass), FilterBuilder.equal(OBJECT_CLASS, adminRoleClass)).toString();
         return connection.search(oudc, roleFilter, SearchScope.SUBTREE);
     }
@@ -215,15 +211,31 @@ public class EntryHelper {
 
         while (roleCursor.next()) {
             Entry roleEntry = roleCursor.get();
-            List<String> dns = userDnsFromRole(entry);
+            List<String> dns = userDnsFromRole(roleEntry);
 
             if (dns.contains(dn)) {
-                LdapLocation location = getLocationFromRdns(roleEntry.getDn().getRdns());
-                user.getRoles().add(new LdapRole(location.getState(), location.getDistrict(), location.getDistrict().contains("Admin")));
+                LdapLocation location = getLocationFromRoleRdns(roleEntry.getDn().getRdns());
+                user.getRoles().add(new LdapRole(location.getState(), location.getDistrict(), location.getState().contains("Admin")));
             }
         }
 
+        // home district and state
+        LdapLocation location = getLocationFromUserRdns(rdnHolderList);
+        user.setDistrict(location.getDistrict());
+        user.setState(location.getState());
+    }
+
+    private LdapLocation getLocationFromUserRdns(List<Rdn> rdnHolderList) {
+        return getLocationFromRdns(rdnHolderList, 0);
+    }
+
+    private LdapLocation getLocationFromRoleRdns(List<Rdn> rdnHolderList) {
+        return getLocationFromRdns(rdnHolderList, 1);
+    }
+
+    private LdapLocation getLocationFromRdns(List<Rdn> holderList, int offset) {
         // leave only cn entries
+        List<Rdn> rdnHolderList = new ArrayList<>(holderList);
         Iterator<Rdn> it = rdnHolderList.iterator();
         while (it.hasNext()) {
             Rdn rdn = it.next();
@@ -232,26 +244,19 @@ public class EntryHelper {
             }
         }
 
-        // home district and state
-        LdapLocation location = getLocationFromRdns(rdnHolderList);
-        user.setDistrict(location.getDistrict());
-        user.setState(location.getState());
-    }
-
-    private LdapLocation getLocationFromRdns(List<Rdn> rdnHolderList) {
         LdapLocation location = new LdapLocation();
-        if (rdnHolderList.size() == 1) {
+        if (rdnHolderList.size() == 0 + offset) {
             // national view
             location.setState(LdapUser.ALL);
             location.setDistrict(LdapUser.ALL);
-        } else if (rdnHolderList.size() == 2) {
+        } else if (rdnHolderList.size() == 1 + offset) {
             // state view
             location.setState(parseRole(rdnHolderList.get(0).getValue()));
             location.setDistrict(LdapUser.ALL);
-        } else if (rdnHolderList.size() == 3) {
+        } else if (rdnHolderList.size() == 2 + offset) {
             // district view
-            location.setState(parseRole(rdnHolderList.get(0).getValue()));
-            location.setDistrict(parseRole(rdnHolderList.get(1).getValue()));
+            location.setDistrict(parseRole(rdnHolderList.get(0).getValue()));
+            location.setState(parseRole(rdnHolderList.get(1).getValue()));
         } else {
             throw new LdapAuthException("Illegal user state, number of cn entries: " + rdnHolderList.size());
         }

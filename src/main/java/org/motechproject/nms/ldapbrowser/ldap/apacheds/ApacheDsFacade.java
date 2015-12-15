@@ -104,8 +104,7 @@ public class ApacheDsFacade implements LdapFacade {
         try (LdapConnection connection = new LdapNetworkConnection(ldapHost, ldapPort, ldapUseSsl)) {
             connection.bind(currentUser.getDn(), adminPassword);
 
-            return entryHelper.getAllUsers(connection, currentUser.getState(),
-                    currentUser.getDistrict());
+            return entryHelper.getAllUsers(connection);
         } catch (IOException | LdapException | CursorException e) {
             throw new LdapReadException("User " + adminPassword + " failed to retrieve users", e);
         }

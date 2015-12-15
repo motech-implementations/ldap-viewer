@@ -40,6 +40,14 @@
             <input type="email" class="form-control" id="email" placeholder="Email" th:field="*{email}"/>
         </div>
         <div class="form-group">
+            <label for="name" th:utext="#{user.phone}"></label>
+            <input type="tel" class="form-control" id="phone" placeholder="Phone number" th:field="*{phone}"/>
+        </div>
+        <div class="form-group">
+            <label for="email" th:utext="#{user.mobile}"></label>
+            <input type="tel" class="form-control" id="mobile" placeholder="Mobile phone number" th:field="*{mobile}"/>
+        </div>
+        <div class="form-group">
             <label for="state" th:utext="#{user.state}"></label>
             <select class="form-control" id="state" th:field="*{state}">
                 <option th:each="state: ${states}" th:value="${state}" th:text="${state}">${state}</option>
