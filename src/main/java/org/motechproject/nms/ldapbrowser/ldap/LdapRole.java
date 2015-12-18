@@ -4,6 +4,7 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import java.util.Objects;
 
 @XmlRootElement
 public class LdapRole {
@@ -63,5 +64,24 @@ public class LdapRole {
     @JsonIgnore
     public boolean isDistrictLevel() {
         return !ALL.equals(district) && !ALL.equals(state);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        LdapRole ldapRole = (LdapRole) o;
+        return isAdmin == ldapRole.isAdmin &&
+                Objects.equals(state, ldapRole.state) &&
+                Objects.equals(district, ldapRole.district);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(state, district, isAdmin);
     }
 }

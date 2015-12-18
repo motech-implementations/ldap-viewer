@@ -28,9 +28,8 @@ public class LdapUserServiceImpl implements LdapUserService {
     }
 
     @Override
-    public LdapUser saveUser(LdapUser user) {
-        // TODO: implement
-        return user;
+    public void saveUser(LdapUser user) {
+        ldapFacade.addLdapUserEntry(user, getCurrentUsername(), getCurrentPassword());
     }
 
     @Override

@@ -17,6 +17,7 @@ import org.motechproject.nms.ldapbrowser.ldap.AttributeNames;
 import org.motechproject.nms.ldapbrowser.ldap.LdapLocation;
 import org.motechproject.nms.ldapbrowser.ldap.LdapRole;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
+import org.motechproject.nms.ldapbrowser.ldap.RoleType;
 import org.motechproject.nms.ldapbrowser.ldap.ex.LdapAuthException;
 import org.motechproject.nms.ldapbrowser.ldap.ex.LdapReadException;
 
@@ -41,7 +42,9 @@ public class EntryHelper {
     private String dc;
     private String userClass;
     private String nationalRole;
+    private String nationalUserAdminRole;
     private String roleSuffix;
+    private String adminRoleSuffix;
     private String roleClass;
     private String adminRoleClass;
     private String occupantAttrName;
@@ -99,14 +102,27 @@ public class EntryHelper {
 
     public Entry userToEntry(LdapUser user) throws LdapException {
         return new DefaultEntry(
-            buildDn(user),
+            "cn=" + user.getUsername() + "," + buildDn(user.getState(), user.getDistrict(), RoleType.NONE),
             attrStr(OBJECT_CLASS, userClass),
 
             attrStr(AttributeNames.NAME, user.getName()),
+            attrStr(AttributeNames.PASSWORD, user.getPassword()),
             attrStr(AttributeNames.EMAIL, user.getEmail())
+            //attrStr(AttributeNames.MOBILE_NUMBER, user.getMobileNumber()),
+            //attrStr(AttributeNames.WORK_NUMBER, user.getWorkNumber())
 
             // TODO: password
         );
+    }
+
+    public String getAttributeName(RoleType type) {
+        if (type == RoleType.USER_ADMIN) {
+            return memberAttrName;
+        } else if (type == RoleType.VIEWER) {
+            return occupantAttrName;
+        }
+
+        return null;
     }
 
     public String buildDn(LdapUser user) {
@@ -132,6 +148,42 @@ public class EntryHelper {
 
         sb.append(',').append(OU);
         sb.append(',').append(DC).append(dc);
+
+        return sb.toString();
+    }
+
+    public String buildDn(String state, String district, RoleType type) {
+        StringBuilder sb = new StringBuilder();
+
+        if (StringUtils.isNotBlank(district)) {
+            appendCnEqual(sb);
+            appendRoleName(sb, district, type);
+            sb.append(",");
+        }
+        if (StringUtils.isNotBlank(state)) {
+            appendCnEqual(sb);
+            appendRoleName(sb, state, type);
+            sb.append(",");
+        }
+
+        if (type == RoleType.USER_ADMIN) {
+            appendCnEqual(sb);
+            sb.append(nationalUserAdminRole);
+            sb.append(",");
+        } else if (type == RoleType.VIEWER) {
+            appendCnEqual(sb);
+            sb.append(nationalRole);
+            sb.append(",");
+        }
+
+        sb.append(OU).append("=");
+        if (type == RoleType.USER_ADMIN || type == RoleType.VIEWER) {
+            sb.append(rolesOu);
+        } else {
+            sb.append(usersOu);
+        }
+
+        sb.append(',').append(DC).append("=").append(dc);
 
         return sb.toString();
     }
@@ -272,6 +324,16 @@ public class EntryHelper {
         sb.append(stateOrDistrict).append(' ').append(roleSuffix);
     }
 
+    private void appendRoleName(StringBuilder sb, String stateOrDistrict, RoleType type) {
+        sb.append(stateOrDistrict);
+
+        if (type == RoleType.USER_ADMIN) {
+            sb.append(' ').append(adminRoleSuffix);
+        } else if (type == RoleType.VIEWER) {
+            sb.append(' ').append(roleSuffix);
+        }
+    }
+
     private void appendCnEqual(StringBuilder sb) {
         sb.append(CN).append('=');
     }
@@ -366,5 +428,13 @@ public class EntryHelper {
 
     public void setMemberAttrName(String memberAttrName) {
         this.memberAttrName = memberAttrName;
+    }
+
+    public void setNationalUserAdminRole(String nationalUserAdminRole) {
+        this.nationalUserAdminRole = nationalUserAdminRole;
+    }
+
+    public void setAdminRoleSuffix(String adminRoleSuffix) {
+        this.adminRoleSuffix = adminRoleSuffix;
     }
 }

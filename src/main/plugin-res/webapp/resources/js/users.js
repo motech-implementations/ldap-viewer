@@ -22,9 +22,19 @@ $(document).ready( function () {
             },
             { "data": "username"},
             { "data": "name"},
-            { "data": "email"},
+            { "data": "email"}
         ]
     });
+
+   $('#states_table').DataTable({
+       "paging": false,
+       "info": false
+   });
+
+   $('#districts_table').DataTable({
+       "paging": false,
+       "info": false
+   });
 
    $('#user_table tbody').on('click', 'td.details-control', function () {
         var tr = $(this).closest('tr');
@@ -36,17 +46,17 @@ $(document).ready( function () {
     // replace districts on state change
     $("#state").change(function() {
         var state = $(this).val();
-        $.get('districts/' + state, function(data) {
+        $.get('../api/districts/' + state, function(data) {
             var selectEl = $("#district");
             selectEl.empty(); // remove old options
 
-            $.each(data, function(index, value) {
-              console.log(value);
-              selectEl.append($("<option></option>")
-                 .attr("value", value).text(value));
+            $.each(data.Item, function(index, value) {
+              console.log("Found district: " + value.$);
+              selectEl.append($("<option>", {
+                value: value.$,
+                text: value.$
+              }));
             });
-
-            selectEl.val("ALL");
         });
     });
 } );

@@ -125,10 +125,8 @@ public class LdapUserServlet extends HttpServlet {
                                         HttpServletResponse resp, OutputStream out) throws Exception {
         ActionHarness actionHarness = new ActionHarness(action);
 
-        actionHarness.setValues(req.getParameterMap());
-
+        actionHarness.setValue("parametersMap", req.getParameterMap());
         actionHarness.setValue("outputStream", out);
-        actionHarness.setValue("inputStream", req.getInputStream());
 
         actionHarness.setValue("currentUsername", req.getUserPrincipal().getName());
         actionHarness.setValue("ldapUserService", ldapUserService);

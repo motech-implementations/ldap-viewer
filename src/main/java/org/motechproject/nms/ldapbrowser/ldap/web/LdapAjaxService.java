@@ -45,6 +45,14 @@ public class LdapAjaxService {
         return new JaxbList<>(regionService.availableDistrictNames(stateName));
     }
 
+    @GET
+    @Path("/states")
+    @Consumes(MediaType.WILDCARD)
+    @Produces(MediaType.APPLICATION_JSON)
+    public JaxbList<String> getStateNamesForNewUser() {
+        return new JaxbList<>(regionService.availableStateNames());
+    }
+
     public void setLdapUserService(LdapUserService ldapUserService) {
         this.ldapUserService = ldapUserService;
     }

@@ -10,7 +10,7 @@ public interface LdapUserService {
 
     List<LdapUser> getUsers(UsersQuery query);
 
-    LdapUser saveUser(LdapUser user);
+    void saveUser(LdapUser user);
 
     void deleteUser(String username);
 }

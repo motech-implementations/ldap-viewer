@@ -10,6 +10,8 @@ body {
     background: -moz-linear-gradient(top, #daebfb 0%, #f4f8fc 18%, #ffffff 30%);
     background: -webkit-linear-gradient(top, #daebfb 0%,#f4f8fc 28%,#ffffff 30%);
     background: linear-gradient(to bottom, #daebfb 0%,#f4f8fc 18%,#ffffff 30%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#daebfb', endColorstr='#ffffff',GradientType=0 );
 }
 
@@ -21,7 +23,7 @@ body {
     background: -moz-linear-gradient(top, #d7e4ed 0%, #c3d5e4 100%);
     background: -webkit-linear-gradient(top, #d7e4ed 0%,#c3d5e4 100%);
     background: linear-gradient(to bottom, #d7e4ed 0%,#c3d5e4 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d7e4ed', endColorstr='#c3d5e4',GradientType=0 );
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d7e4ed', endColorstr='#c3d5e4',GradientType=0);
 }
 
 .navbar.navbar-default a,

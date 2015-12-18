@@ -24,46 +24,85 @@
     <form class="form-horizontal form-user" method="post" th:action="@{/plugin/nms-users/ldap/user}" th:object="${user}">
         <div class="form-group">
             <label for="username" th:utext="#{user.username}"></label>
-            <input type="text" class="form-control" id="username" placeholder="Username" th:field="*{username}"
+            <input type="text" class="form-control" id="username" placeholder="Username" th:name="username" th:field="${username}"
                    th:attrappend="readonly=${user.uiEdit ? 'true' : 'false'}"/>
         </div>
         <div class="form-group">
             <label for="name" th:utext="#{user.password}"></label>
-            <input type="password" class="form-control" id="password" placeholder="Password" th:field="*{password}"/>
+            <input type="password" class="form-control" id="password" placeholder="Password" th:name="password" th:field="${password}"/>
         </div>
         <div class="form-group">
             <label for="name" th:utext="#{user.name}"></label>
-            <input type="text" class="form-control" id="name" placeholder="Name" th:field="*{name}"/>
+            <input type="text" class="form-control" id="name" placeholder="Name" th:name="name" th:field="${name}"/>
         </div>
         <div class="form-group">
             <label for="email" th:utext="#{user.email}"></label>
-            <input type="email" class="form-control" id="email" placeholder="Email" th:field="*{email}"/>
+            <input type="email" class="form-control" id="email" placeholder="Email" th:name="email" th:field="${email}"/>
         </div>
         <div class="form-group">
-            <label for="name" th:utext="#{user.phone}"></label>
-            <input type="tel" class="form-control" id="phone" placeholder="Phone number" th:field="*{phone}"/>
+            <label for="phone" th:utext="#{user.phone}"></label>
+            <input type="tel" class="form-control" id="phone" placeholder="Phone number" th:name="phone" th:field="${phone}"/>
         </div>
         <div class="form-group">
-            <label for="email" th:utext="#{user.mobile}"></label>
-            <input type="tel" class="form-control" id="mobile" placeholder="Mobile phone number" th:field="*{mobile}"/>
+            <label for="mobile" th:utext="#{user.mobile}"></label>
+            <input type="tel" class="form-control" id="mobile" placeholder="Mobile phone number" th:name="mobile" th:field="${mobile}"/>
         </div>
         <div class="form-group">
             <label for="state" th:utext="#{user.state}"></label>
             <select class="form-control" id="state" th:field="*{state}">
-                <option th:each="state: ${states}" th:value="${state}" th:text="${state}">${state}</option>
+                <option th:each="state: ${states}" th:value="${state}" th:name="state" th:text="${state}">${state}</option>
             </select>
         </div>
         <div class="form-group">
             <label for="district" th:utext="#{user.district}"></label>
             <select class="form-control" id="district" th:field="*{district}">
-                <option th:each="district: ${districts}" th:value="${district}" th:text="${district}"></option>
+                <option th:each="info: ${districts}" th:value="${district}" th:name="district" th:text="${info.district}"></option>
             </select>
         </div>
-        <div class="form-group">
-            <label for="admin" class="chekbox" th:utext="#{user.admin}"></label>
-            <input type="checkbox" id="admin" th:field="*{admin}"/>
-        </div>
         <input type="hidden" id="uiEdit" th:field="*{uiEdit}"/>
+        <div class="form-group">
+            <label th:utext="#{roles.state}"></label>
+            <table id="states_table" class="display">
+                <thead>
+                <tr>
+                    <th th:utext="#{user.state}"></th>
+                    <th th:utext="#{role.admin}"></th>
+                    <th th:utext="#{role.view}"></th>
+                    <th th:utext="#{role.none}"></th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="state : ${states}">
+                        <td th:text="${state}"></td>
+                        <td><input type="radio" th:name="${'role_state_' + state}" th:value="UA" /></td>
+                        <td><input type="radio" th:name="${'role_state_' + state}" th:value="V" /></td>
+                        <td><input type="radio" th:name="${'role_state_' + state}" th:value="N" th:checked="true" /></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="form-group">
+            <label th:utext="#{roles.district}"></label>
+            <table id="districts_table" class="display">
+                <thead>
+                <tr>
+                    <th th:utext="#{user.district}"></th>
+                    <th th:utext="#{role.admin}"></th>
+                    <th th:utext="#{role.view}"></th>
+                    <th th:utext="#{role.none}"></th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="info : ${districts}">
+                        <td th:text="${info.district}"></td>
+                        <td><input type="radio" th:name="${'role_district_' + info.state + '__' + info.district}" th:value="UA" /></td>
+                        <td><input type="radio" th:name="${'role_district_' + info.state + '__' + info.district}" th:value="V" /></td>
+                        <td><input type="radio" th:name="${'role_district_' + info.state + '__' + info.district}" th:value="N" th:checked="true" /></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         <div class="form-group">
             <div class="">
                 <a th:if="${user.uiEdit}" th:href="@{/plugin/nms-users/ldap/user/{username}/delete(username=${user.username})}"

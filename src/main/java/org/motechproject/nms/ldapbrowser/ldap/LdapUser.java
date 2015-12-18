@@ -94,6 +94,9 @@ public class LdapUser {
     }
 
     public List<LdapRole> getRoles() {
+        if (roles == null) {
+            roles = new ArrayList<>();
+        }
         return roles;
     }
 

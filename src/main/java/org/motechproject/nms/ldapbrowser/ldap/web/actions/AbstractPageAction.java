@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Collections;
+import java.util.Map;
 
 public abstract class AbstractPageAction implements IStreamingAction {
 
@@ -20,12 +21,12 @@ public abstract class AbstractPageAction implements IStreamingAction {
     private static final String DISTRICTS = "districts";
 
     private OutputStream outputStream;
-    private InputStream inputStream;
     private TemplateEngine templateEngine;
     private WebContext thymeleafContext;
     private LdapUserService ldapUserService;
     private RegionService regionService;
     private String currentUsername;
+    private Map<String, String[]> parametersMap;
 
     @Override
     public String getMimeType(String s) {
@@ -57,16 +58,8 @@ public abstract class AbstractPageAction implements IStreamingAction {
         this.currentUsername = currentUsername;
     }
 
-    public void setInputStream(InputStream inputStream) {
-        this.inputStream = inputStream;
-    }
-
     protected OutputStream getOutputStream() {
         return outputStream;
-    }
-
-    protected InputStream getInputStream() {
-        return inputStream;
     }
 
     protected TemplateEngine getTemplateEnginue() {
@@ -81,8 +74,16 @@ public abstract class AbstractPageAction implements IStreamingAction {
         return ldapUserService;
     }
 
+    public Map<String, String[]> getParametersMap() {
+        return parametersMap;
+    }
+
+    public void setParametersMap(Map<String, String[]> parametersMap) {
+        this.parametersMap = parametersMap;
+    }
+
     protected void addRegionalDataToModel(LdapUser currentUser, LdapUser editedUser) {
-//        if (currentUser.isNationalLevel()) {
+//        if (currentUser.getRoles().isNationalLevel()) {
 //            thymeleafContext.setVariable(STATES, regionService.availableStateNames());
 //            // load districts if a state is selected
 //            if (!StringUtils.isEmpty(editedUser.getState())) {
@@ -99,6 +100,8 @@ public abstract class AbstractPageAction implements IStreamingAction {
 //        } else {
 //            throw new IllegalStateException("User " + currentUser.getName() + " has wrong admin state");
 //        }
+        thymeleafContext.setVariable(STATES, regionService.availableStateNames());
+        thymeleafContext.setVariable(DISTRICTS, regionService.allAvailableDistrictInfo());
     }
 
     protected LdapUser getCurrentUser() {
