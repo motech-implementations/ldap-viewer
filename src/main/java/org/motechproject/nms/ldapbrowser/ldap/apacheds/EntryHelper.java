@@ -41,6 +41,7 @@ public class EntryHelper {
     private String usersOu;
     private String dc;
     private String userClass;
+    private String extendedUserClass;
     private String nationalRole;
     private String nationalUserAdminRole;
     private String roleSuffix;
@@ -96,22 +97,39 @@ public class EntryHelper {
         return new ArrayList<>(users);
     }
 
+    public void deleteUser(LdapConnection connection, String username) throws CursorException, LdapException {
+        LdapUser user = findUserByUsername(connection, username);
+        String userDn = buildUserDn(username, user.getState(), user.getDistrict());
+
+        connection.delete(userDn);
+    }
+
+    private LdapUser findUserByUsername(LdapConnection connection, String username) throws CursorException, LdapException {
+        List<LdapUser> users = getAllUsers(connection);
+        for (LdapUser user : users) {
+            if (user.getUsername().equals(username)) {
+                return user;
+            }
+        }
+
+        return null;
+    }
+
     public String getUsername(Entry entry) {
         return getAttributeStrVal(entry, CN);
     }
 
     public Entry userToEntry(LdapUser user) throws LdapException {
         return new DefaultEntry(
-            "cn=" + user.getUsername() + "," + buildDn(user.getState(), user.getDistrict(), RoleType.NONE),
+            buildCnPartForUser(user.getUsername()) + buildDn(user.getState(), user.getDistrict(), RoleType.NONE),
             attrStr(OBJECT_CLASS, userClass),
+            attrStr(OBJECT_CLASS, extendedUserClass),
 
             attrStr(AttributeNames.NAME, user.getName()),
+            attrStr(AttributeNames.EMAIL, user.getEmail()),
             attrStr(AttributeNames.PASSWORD, user.getPassword()),
-            attrStr(AttributeNames.EMAIL, user.getEmail())
-            //attrStr(AttributeNames.MOBILE_NUMBER, user.getMobileNumber()),
-            //attrStr(AttributeNames.WORK_NUMBER, user.getWorkNumber())
-
-            // TODO: password
+            attrStr(AttributeNames.MOBILE_NUMBER, user.getMobileNumber()),
+            attrStr(AttributeNames.WORK_NUMBER, user.getWorkNumber())
         );
     }
 
@@ -125,31 +143,17 @@ public class EntryHelper {
         return null;
     }
 
-    public String buildDn(LdapUser user) {
-        StringBuilder sb = new StringBuilder();
+    public String buildUserDn(String username, String state, String district) {
+        return buildCnPartForUser(username).concat(buildDn(state, district, RoleType.NONE));
+    }
 
-        appendCnEqual(sb);
-        sb.append(user.getUsername());
+    private String buildCnPartForUser(String username) {
+        StringBuilder cnBuilder = new StringBuilder();
+        appendCnEqual(cnBuilder);
+        cnBuilder.append(username);
+        cnBuilder.append(",");
 
-        if (!LdapUser.ALL.equals(user.getDistrict())) {
-            sb.append(',');
-            appendCnEqual(sb);
-            appendRoleName(sb, user.getDistrict());
-        }
-        if (!LdapUser.ALL.equals(user.getState())) {
-            sb.append(',');
-            appendCnEqual(sb);
-            appendRoleName(sb, user.getState());
-        }
-
-        sb.append(',');
-        appendCnEqual(sb);
-        sb.append(nationalRole);
-
-        sb.append(',').append(OU);
-        sb.append(',').append(DC).append(dc);
-
-        return sb.toString();
+        return cnBuilder.toString();
     }
 
     public String buildDn(String state, String district, RoleType type) {
@@ -428,6 +432,10 @@ public class EntryHelper {
 
     public void setMemberAttrName(String memberAttrName) {
         this.memberAttrName = memberAttrName;
+    }
+
+    public void setExtendedUserClass(String extendedUserClass) {
+        this.extendedUserClass = extendedUserClass;
     }
 
     public void setNationalUserAdminRole(String nationalUserAdminRole) {

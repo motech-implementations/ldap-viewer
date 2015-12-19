@@ -59,6 +59,9 @@ public class SaveUserAction extends AbstractPageAction {
                 case "username":
                     user.setUsername(entry.getValue()[0]);
                     break;
+                case "name":
+                    user.setName(entry.getValue()[0]);
+                    break;
                 case "password":
                     user.setPassword(entry.getValue()[0]);
                     break;
@@ -71,6 +74,12 @@ public class SaveUserAction extends AbstractPageAction {
                 case "email":
                     user.setEmail(entry.getValue()[0]);
                     break;
+                case "phone":
+                    user.setWorkNumber(entry.getValue()[0]);
+                    break;
+                case "mobile":
+                    user.setMobileNumber(entry.getValue()[0]);
+                    break;
                 default:
                     parseUserRole(user, entry.getKey(), entry.getValue());
             }
@@ -82,10 +91,17 @@ public class SaveUserAction extends AbstractPageAction {
     private void parseUserRole(LdapUser user, String property, String[] values) {
         if (property.startsWith(ROLE_PREFIX)) {
             if (property.substring(ROLE_PREFIX.length()).startsWith(STATE)) {
-                String state = extractStateOrDistrictName(property, STATE.length());
+                String state = extractStateDistrictName(property, STATE.length());
                 RoleType type = extractRoleType(values[0]);
                 if (type != RoleType.NONE) {
                     user.getRoles().add(new LdapRole(state, "", type == RoleType.USER_ADMIN));
+                }
+            } else if (property.substring(ROLE_PREFIX.length()).startsWith(DISTRICT)) {
+                String stateDistrict = extractStateDistrictName(property, DISTRICT.length());
+                String[] locations = stateDistrict.split("__");
+                RoleType type = extractRoleType(values[0]);
+                if (type != RoleType.NONE) {
+                    user.getRoles().add(new LdapRole(locations[0], locations[1], type == RoleType.USER_ADMIN));
                 }
             }
         }
@@ -101,7 +117,7 @@ public class SaveUserAction extends AbstractPageAction {
         }
     }
 
-    private String extractStateOrDistrictName(String expression, int offset) {
+    private String extractStateDistrictName(String expression, int offset) {
         return expression.substring(ROLE_PREFIX.length() + offset);
     }
 }

@@ -96,7 +96,7 @@ public class LdapUserServlet extends HttpServlet {
         EditUserPageAction action = new EditUserPageAction();
 
         ActionHarness actionHarness = prepareAction(action, req, resp, out);
-        String username = urlMatcher.extractUsernameForEdit(req.getContextPath());
+        String username = urlMatcher.extractUsernameForEdit(req.getPathInfo());
         actionHarness.setValue(USERNAME, username);
 
         action.execute();

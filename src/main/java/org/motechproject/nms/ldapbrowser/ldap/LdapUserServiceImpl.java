@@ -34,7 +34,7 @@ public class LdapUserServiceImpl implements LdapUserService {
 
     @Override
     public void deleteUser(String username) {
-        // TODO: implement
+        ldapFacade.deleteUser(username, getCurrentUsername(), getCurrentPassword());
     }
 
     private String getCurrentUsername() {

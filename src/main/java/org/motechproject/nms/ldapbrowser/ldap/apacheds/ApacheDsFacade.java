@@ -118,7 +118,8 @@ public class ApacheDsFacade implements LdapFacade {
 
                     Modification modification = new DefaultModification(ModificationOperation.REMOVE_ATTRIBUTE,
                             entryHelper.getAttributeName(role.isAdmin() ? RoleType.USER_ADMIN : RoleType.VIEWER),
-                            entryHelper.buildDn(user));
+                            entryHelper.buildUserDn(user.getUsername(), user.getState(), user.getDistrict())
+                    );
                     connection.modify(roleDn, modification);
                 }
             }
@@ -130,7 +131,7 @@ public class ApacheDsFacade implements LdapFacade {
 
                 Modification modification = new DefaultModification(ModificationOperation.ADD_ATTRIBUTE,
                         entryHelper.getAttributeName(role.isAdmin() ? RoleType.USER_ADMIN : RoleType.VIEWER),
-                        entryHelper.buildDn(user));
+                        entryHelper.buildUserDn(user.getUsername(), user.getState(), user.getDistrict()));
                 connection.modify(roleDn, modification);
             }
 
@@ -159,7 +160,27 @@ public class ApacheDsFacade implements LdapFacade {
 
             return entryHelper.getAllUsers(connection);
         } catch (LdapException | CursorException e) {
-            throw new LdapReadException("User " + adminPassword + " failed to retrieve users", e);
+            throw new LdapReadException("User " + adminUsername + " failed to retrieve users", e);
+        } finally {
+            unbind(connection);
+            IOUtils.closeQuietly(connection);
+        }
+    }
+
+    @Override
+    public void deleteUser(String username, String adminUsername, String adminPassword) {
+        ApacheDsUser currentUser = getCurrentUser(adminUsername);
+
+        LdapConnection connection = null;
+        try {
+            connection = new LdapNetworkConnection(ldapHost, ldapPort, ldapUseSsl);
+            connection.bind(currentUser.getDn(), adminPassword);
+
+            entryHelper.deleteUser(connection, username);
+
+            //TODO: Remove from role attributes
+        } catch (LdapException | CursorException e) {
+            throw new LdapReadException("User " + adminUsername + " failed to delete user", e);
         } finally {
             unbind(connection);
             IOUtils.closeQuietly(connection);

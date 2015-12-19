@@ -8,6 +8,8 @@ import java.io.IOException;
 
 public class EditUserPageAction extends AbstractPageAction {
 
+    private static final String UI_EDIT = "uiEdit";
+
     private String username;
 
     @Override
@@ -16,6 +18,7 @@ public class EditUserPageAction extends AbstractPageAction {
         LdapUser currentUser = getCurrentUser();
 
         setModelVariable(Views.USER_VAR, editedUser);
+        setModelVariable(UI_EDIT, true);
         addRegionalDataToModel(currentUser, editedUser);
 
         printView(Views.USER_EDIT_VIEW);

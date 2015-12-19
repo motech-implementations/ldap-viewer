@@ -18,6 +18,13 @@
         <pentaho.version>5.4.0.6-154</pentaho.version>
     </properties>
     <dependencies>
+        <!-- Commons -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+
         <!-- View -->
         <dependency>
             <groupId>org.thymeleaf</groupId>

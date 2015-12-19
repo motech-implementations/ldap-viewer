@@ -11,4 +11,6 @@ public interface LdapFacade {
     void addLdapUserEntry(LdapUser user, String creatorUsername, String creatorPassword);
 
     List<LdapUser> getUsers(String adminUsername, String adminPassword);
+
+    void deleteUser(String username, String adminUsername, String adminPassword);
 }

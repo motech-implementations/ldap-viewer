@@ -61,6 +61,11 @@ public class DummyLdapFacade implements LdapFacade {
     }
 
     @Override
+    public void deleteUser(String username, String adminUsername, String adminPassword) {
+
+    }
+
+    @Override
     public void addLdapUserEntry(LdapUser user, String creatorUsername, String creatorPassword) {
         users.add(user);
     }
