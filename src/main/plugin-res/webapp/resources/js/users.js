@@ -63,5 +63,10 @@ $(document).ready( function () {
 } );
 
 function deleteUser(username) {
-    $.post(username + '/delete');
+    var confirmation = confirm("Do you really want to delete this user? This operation is irreversible.")
+    if (confirmation) {
+        $.post(username + '/delete', function(data) {
+            window.location.href = 'nms-users/ldap';
+        });
+    }
 }
