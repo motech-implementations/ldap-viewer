@@ -90,6 +90,7 @@ public class ApacheDsFacade implements LdapFacade {
 
             Entry userEntry = entryHelper.userToEntry(user);
             ApacheDsUser userPriorUpdate = (ApacheDsUser) findUser(user.getUsername());
+            String userDn = userPriorUpdate.getDn().toString();
 
             ResultCodeEnum resultCode = null;
 
@@ -128,8 +129,7 @@ public class ApacheDsFacade implements LdapFacade {
                     String roleDn = entryHelper.buildDn(role.getState(), role.getDistrict(), role.isAdmin() ? RoleType.USER_ADMIN : RoleType.VIEWER);
 
                     Modification modification = new DefaultModification(ModificationOperation.REMOVE_ATTRIBUTE,
-                            entryHelper.getAttributeName(role.isAdmin() ? RoleType.USER_ADMIN : RoleType.VIEWER),
-                            entryHelper.buildUserDn(user.getUsername(), user.getState(), user.getDistrict())
+                            entryHelper.getAttributeName(role.isAdmin() ? RoleType.USER_ADMIN : RoleType.VIEWER), userDn
                     );
                     connection.modify(roleDn, modification);
                 }
@@ -141,8 +141,8 @@ public class ApacheDsFacade implements LdapFacade {
                 String roleDn = entryHelper.buildDn(role.getState(), role.getDistrict(), role.isAdmin() ? RoleType.USER_ADMIN : RoleType.VIEWER);
 
                 Modification modification = new DefaultModification(ModificationOperation.ADD_ATTRIBUTE,
-                        entryHelper.getAttributeName(role.isAdmin() ? RoleType.USER_ADMIN : RoleType.VIEWER),
-                        entryHelper.buildUserDn(user.getUsername(), user.getState(), user.getDistrict()));
+                        entryHelper.getAttributeName(role.isAdmin() ? RoleType.USER_ADMIN : RoleType.VIEWER), userDn
+                );
                 connection.modify(roleDn, modification);
             }
 

@@ -49,14 +49,23 @@
             <label for="mobile" th:utext="#{user.mobile}"></label>
             <input type="tel" class="form-control" id="mobile" placeholder="Mobile phone number" th:name="mobile" th:value="${user.mobileNumber}"/>
         </div>
-        <div class="form-group">
+        <div class="form-group" th:if="${userAdminMode}">
+            <label for="nationalAdmin" th:utext="#{roles.nationalUserAdmin}"></label>
+            <input type="checkbox" class="form-control" id="nationalAdmin" th:name="nationalAdmin" th:value="nationalAdmin" th:checked="${user.nationalAdmin}"/>
+        </div>
+        <div class="form-group" th:if="${userAdminMode}">
+            <label for="nationalView" th:utext="#{roles.nationalView}"></label>
+            <input type="checkbox" class="form-control" id="nationalView" th:name="nationalView" th:value="nationalAdmin" th:checked="${user.nationalView}"/>
+        </div>
+        <div class="form-group" th:if="${!uiEdit}">
             <label for="state" th:utext="#{user.state}"></label>
             <select class="form-control" id="state" th:name="state">
+                <option th:if="${userAdminMode}" th:value="'National level'" th:text="'National level'"></option>
                 <option th:each="state: ${states}" th:value="${state}" th:text="${state}"
                         th:attrappend="selected=${user.state == state ? 'true' : 'false'}"></option>
             </select>
         </div>
-        <div class="form-group">
+        <div class="form-group" th:if="${!uiEdit}">
             <label for="district" th:utext="#{user.district}"></label>
             <select class="form-control" id="district" th:name="district">
                 <option th:each="district: ${stateDistricts}" th:value="${district}" th:text="${district}"

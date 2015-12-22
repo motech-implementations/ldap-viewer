@@ -1,5 +1,6 @@
 package org.motechproject.nms.ldapbrowser.ldap.web.actions;
 
+import org.apache.commons.lang.StringUtils;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUserService;
 import org.motechproject.nms.ldapbrowser.region.RegionService;
@@ -13,6 +14,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractPageAction implements IStreamingAction {
@@ -20,6 +22,8 @@ public abstract class AbstractPageAction implements IStreamingAction {
     private static final String STATES = "states";
     private static final String DISTRICTS = "districts";
     private static final String STATE_DISTRICTS = "stateDistricts";
+
+    protected static final String USER_ADMIN_MODE = "userAdminMode";
 
     private OutputStream outputStream;
     private TemplateEngine templateEngine;
@@ -86,7 +90,7 @@ public abstract class AbstractPageAction implements IStreamingAction {
     protected void addRegionalDataToModel(LdapUser currentUser, LdapUser editedUser) {
         thymeleafContext.setVariable(STATES, regionService.availableStateNames());
         thymeleafContext.setVariable(DISTRICTS, regionService.allAvailableDistrictInfo());
-        thymeleafContext.setVariable(STATE_DISTRICTS, regionService.availableDistrictNames(editedUser.getState()));
+        thymeleafContext.setVariable(STATE_DISTRICTS, regionService.availableDistrictNames(getSelectedState(editedUser)));
     }
 
     protected LdapUser getCurrentUser() {
@@ -101,5 +105,17 @@ public abstract class AbstractPageAction implements IStreamingAction {
         Writer writer = new PrintWriter(outputStream);
         templateEngine.process(viewName, thymeleafContext, writer);
         writer.flush();
+    }
+
+    private String getSelectedState(LdapUser editedUser) {
+        if (StringUtils.isNotBlank(editedUser.getState())) {
+            return editedUser.getState();
+        }
+        List<String> states = regionService.availableStateNames();
+        if (!states.isEmpty()) {
+            return states.get(0);
+        }
+
+        return null;
     }
 }

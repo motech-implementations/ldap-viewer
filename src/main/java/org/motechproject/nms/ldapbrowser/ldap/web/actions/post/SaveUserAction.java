@@ -82,6 +82,12 @@ public class SaveUserAction extends AbstractPageAction {
                 case "uiEdit":
                     user.setUiEdit(entry.getValue()[0].equals("true"));
                     break;
+                case "nationalAdmin":
+                    user.getRoles().add(new LdapRole(null ,null, true));
+                    break;
+                case "nationalView":
+                    user.getRoles().add(new LdapRole(null ,null, false));
+                    break;
                 default:
                     parseUserRole(user, entry.getKey(), entry.getValue());
             }

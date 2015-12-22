@@ -8,7 +8,7 @@ import java.util.List;
 
 public class RegionServiceImpl implements RegionService {
 
-    private static final String ALL = "ALL";
+    private static final String STATE_ADMIN = "State level";
 
     private RegionProvider regionProvider;
 
@@ -23,6 +23,7 @@ public class RegionServiceImpl implements RegionService {
         List<String> names = new ArrayList<>();
         // If state is present, load all districts from this state
         if (StringUtils.isNotBlank(stateName)) {
+            names.add(STATE_ADMIN); // State level admin
             names.addAll(regionProvider.getDistrictNames(stateName));
         } else { // Else include all districts user has access to
             for (DistrictInfo info : allAvailableDistrictInfo()) {

@@ -208,8 +208,8 @@ public class EntryHelper {
 
         while (cursor.next()) {
             Entry entry = cursor.get();
-            String distName = entry.get(CN).getString();
-            names.add(distName);
+            String stateName = entry.get(CN).getString();
+            names.add(stateName);
         }
 
         return names;
@@ -234,7 +234,6 @@ public class EntryHelper {
     public List<DistrictInfo> allAvailableDistrictNames(LdapConnection connection) throws CursorException, LdapException {
         Set<DistrictInfo> names = new HashSet<>();
 
-        // Add remaining, single districts
         String baseDn = buildDn(null, null, RoleType.NONE);
         String filter = FilterBuilder.equal(OBJECT_CLASS, roleClass).toString();
         EntryCursor cursor = connection.search(baseDn, filter, SearchScope.SUBTREE);

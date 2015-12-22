@@ -21,6 +21,8 @@ public class LdapUserDto {
     private List<String> roles;
     private String workNumber;
     private String mobileNumber;
+    private boolean nationalAdmin;
+    private boolean nationalView;
     private boolean uiEdit;
 
     public LdapUserDto() {
@@ -35,16 +37,23 @@ public class LdapUserDto {
         this.email = ldapUser.getEmail();
         this.district = ldapUser.getDistrict();
         this.state = ldapUser.getState();
-        this.roles = buildUserRolesForView(ldapUser.getRoles());
         this.workNumber = ldapUser.getWorkNumber();
         this.mobileNumber = ldapUser.getMobileNumber();
         this.uiEdit = ldapUser.isUiEdit();
+        buildUserRolesForView(ldapUser.getRoles());
     }
 
-    private List<String> buildUserRolesForView(List<LdapRole> roles) {
-        List<String> userRoles = new ArrayList<>();
-
+    private void buildUserRolesForView(List<LdapRole> roles) {
         for (LdapRole role: roles) {
+            if (StringUtils.isBlank(role.getDistrict()) && StringUtils.isBlank(role.getState())) {
+                if (role.isAdmin()) {
+                    nationalAdmin = true;
+                } else {
+                    nationalView = true;
+                }
+                continue;
+            }
+
             StringBuilder sb = new StringBuilder();
             if (role.isAdmin()) {
                 sb.append("UA-");
@@ -59,10 +68,8 @@ public class LdapUserDto {
                 sb.append(role.getDistrict());
             }
 
-            userRoles.add(sb.toString());
+            this.roles.add(sb.toString());
         }
-
-        return userRoles;
     }
 
     public String getUsername() {
@@ -143,6 +150,22 @@ public class LdapUserDto {
 
     public void setUiEdit(boolean uiEdit) {
         this.uiEdit = uiEdit;
+    }
+
+    public boolean isNationalAdmin() {
+        return nationalAdmin;
+    }
+
+    public void setNationalAdmin(boolean nationalAdmin) {
+        this.nationalAdmin = nationalAdmin;
+    }
+
+    public boolean isNationalView() {
+        return nationalView;
+    }
+
+    public void setNationalView(boolean nationalView) {
+        this.nationalView = nationalView;
     }
 
     @Override
