@@ -1,5 +1,6 @@
 package org.motechproject.nms.ldapbrowser.region;
 
+import org.apache.commons.lang.StringUtils;
 import org.motechproject.nms.ldapbrowser.ldap.DistrictInfo;
 
 import java.util.ArrayList;
@@ -19,20 +20,22 @@ public class RegionServiceImpl implements RegionService {
 
     @Override
     public List<String> availableDistrictNames(String stateName) {
-        List<String> names = new ArrayList<>(regionProvider.getDistrictNames(stateName));
+        List<String> names = new ArrayList<>();
+        // If state is present, load all districts from this state
+        if (StringUtils.isNotBlank(stateName)) {
+            names.addAll(regionProvider.getDistrictNames(stateName));
+        } else { // Else include all districts user has access to
+            for (DistrictInfo info : allAvailableDistrictInfo()) {
+                names.add(info.getDistrict());
+            }
+        }
+
         return names;
     }
 
     @Override
     public List<DistrictInfo> allAvailableDistrictInfo() {
-        List<DistrictInfo> districts = new ArrayList<>();
-        for (String state : availableStateNames()) {
-            for (String district : availableDistrictNames(state)) {
-                districts.add(new DistrictInfo(state, district));
-            }
-        }
-
-        return districts;
+        return regionProvider.getAllAvailableDistricts();
     }
 
     public void setRegionProvider(RegionProvider regionProvider) {

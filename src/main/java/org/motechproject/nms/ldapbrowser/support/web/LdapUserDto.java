@@ -1,6 +1,8 @@
-package org.motechproject.nms.ldapbrowser.ldap;
+package org.motechproject.nms.ldapbrowser.support.web;
 
 import org.apache.commons.lang.StringUtils;
+import org.motechproject.nms.ldapbrowser.ldap.LdapRole;
+import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -8,7 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 @XmlRootElement
-public class LdapUser {
+public class LdapUserDto {
 
     private String username;
     private String password;
@@ -16,23 +18,51 @@ public class LdapUser {
     private String email;
     private String district;
     private String state;
-    private List<LdapRole> roles;
+    private List<String> roles;
     private String workNumber;
     private String mobileNumber;
     private boolean uiEdit;
 
-    public LdapUser() {
+    public LdapUserDto() {
         this.roles = new ArrayList<>();
     }
 
-    public LdapUser(String username, String password, String name, String email, String state, String district) {
+    public LdapUserDto(LdapUser ldapUser) {
         this();
-        this.username = username;
-        this.password = password;
-        this.name = name;
-        this.email = email;
-        this.state = state;
-        this.district = district;
+        this.username = ldapUser.getUsername();
+        this.password = ldapUser.getPassword();
+        this.name = ldapUser.getName();
+        this.email = ldapUser.getEmail();
+        this.district = ldapUser.getDistrict();
+        this.state = ldapUser.getState();
+        this.roles = buildUserRolesForView(ldapUser.getRoles());
+        this.workNumber = ldapUser.getWorkNumber();
+        this.mobileNumber = ldapUser.getMobileNumber();
+        this.uiEdit = ldapUser.isUiEdit();
+    }
+
+    private List<String> buildUserRolesForView(List<LdapRole> roles) {
+        List<String> userRoles = new ArrayList<>();
+
+        for (LdapRole role: roles) {
+            StringBuilder sb = new StringBuilder();
+            if (role.isAdmin()) {
+                sb.append("UA-");
+            } else {
+                sb.append("V-");
+            }
+            if (StringUtils.isNotBlank(role.getState())) {
+                sb.append(role.getState());
+            }
+            if (StringUtils.isNotBlank(role.getDistrict())) {
+                sb.append("__");
+                sb.append(role.getDistrict());
+            }
+
+            userRoles.add(sb.toString());
+        }
+
+        return userRoles;
     }
 
     public String getUsername() {
@@ -67,14 +97,6 @@ public class LdapUser {
         this.email = email;
     }
 
-    public boolean isUiEdit() {
-        return uiEdit;
-    }
-
-    public void setUiEdit(boolean uiEdit) {
-        this.uiEdit = uiEdit;
-    }
-
     public String getWorkNumber() {
         return workNumber;
     }
@@ -91,14 +113,11 @@ public class LdapUser {
         this.mobileNumber = mobileNumber;
     }
 
-    public List<LdapRole> getRoles() {
-        if (roles == null) {
-            roles = new ArrayList<>();
-        }
+    public List<String> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<LdapRole> roles) {
+    public void setRoles(List<String> roles) {
         this.roles = roles;
     }
 
@@ -118,14 +137,22 @@ public class LdapUser {
         this.district = district;
     }
 
+    public boolean isUiEdit() {
+        return uiEdit;
+    }
+
+    public void setUiEdit(boolean uiEdit) {
+        this.uiEdit = uiEdit;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        LdapUser ldapUser = (LdapUser) o;
-        return Objects.equals(username, ldapUser.username) &&
-                Objects.equals(name, ldapUser.name) &&
-                Objects.equals(email, ldapUser.email);
+        LdapUserDto that = (LdapUserDto) o;
+        return Objects.equals(username, that.username) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(email, that.email);
     }
 
     @Override

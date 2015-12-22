@@ -50,7 +50,7 @@
     </bean>
 
     <bean id="regionProvider" class="org.motechproject.nms.ldapbrowser.ldap.apacheds.ApacheDsRegionProvider">
-        <property name="ldapPool" ref="ldapConnectionPool"/>
+        <property name="apacheDsFacade" ref="ldapFacade"/>
         <property name="entryHelper" ref="entryHelper"/>
     </bean>
 

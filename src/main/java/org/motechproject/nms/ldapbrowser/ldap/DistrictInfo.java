@@ -1,5 +1,7 @@
 package org.motechproject.nms.ldapbrowser.ldap;
 
+import java.util.Objects;
+
 public class DistrictInfo {
 
     private String district;
@@ -24,5 +26,19 @@ public class DistrictInfo {
 
     public void setDistrict(String district) {
         this.district = district;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DistrictInfo that = (DistrictInfo) o;
+        return Objects.equals(district, that.district) &&
+                Objects.equals(state, that.state);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(district, state);
     }
 }

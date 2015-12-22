@@ -11,6 +11,7 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.message.AddRequest;
 import org.apache.directory.api.ldap.model.message.AddRequestImpl;
 import org.apache.directory.api.ldap.model.message.AddResponse;
+import org.apache.directory.api.ldap.model.message.ModifyRequest;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
@@ -85,17 +86,27 @@ public class ApacheDsFacade implements LdapFacade {
         LdapConnection connection = null;
 
         try {
-            connection = new LdapNetworkConnection(ldapHost, ldapPort, ldapUseSsl);
-            connection.bind(creatorUser.getDn(), creatorPassword);
+            connection = ConnectionUtils.getConnectionAndBindUser(ldapHost, ldapPort, ldapUseSsl, creatorUser.getDn(), creatorPassword);
 
             Entry userEntry = entryHelper.userToEntry(user);
-            LdapUser userPriorUpdate = entryHelper.getUser(connection, userEntry.getDn().toString());
+            ApacheDsUser userPriorUpdate = (ApacheDsUser) findUser(user.getUsername());
 
-            // Adds user entry
-            AddRequest addRequest = new AddRequestImpl();
-            addRequest.setEntry(userEntry);
-            AddResponse addResponse = connection.add(addRequest);
-            ResultCodeEnum resultCode = addResponse.getLdapResult().getResultCode();
+            ResultCodeEnum resultCode = null;
+
+            if (userPriorUpdate == null) {
+                // Adds user entry
+                AddRequest addRequest = new AddRequestImpl();
+                addRequest.setEntry(userEntry);
+                AddResponse addResponse = connection.add(addRequest);
+                resultCode = addResponse.getLdapResult().getResultCode();
+            } else {
+                // Updates user entry
+                List<Modification> modifications = entryHelper.prepareModificationRequests(userEntry, userPriorUpdate);
+
+                for (Modification modification : modifications) {
+                    connection.modify(userPriorUpdate.getDn(), modification);
+                }
+            }
 
             // Adds roles
             Iterator<LdapRole> it = user.getRoles().iterator();
@@ -135,17 +146,17 @@ public class ApacheDsFacade implements LdapFacade {
                 connection.modify(roleDn, modification);
             }
 
-            if (resultCode != ResultCodeEnum.SUCCESS) {
+            //TODO: result codes for modify
+            if (resultCode != ResultCodeEnum.SUCCESS && userPriorUpdate == null) {
                 throw new LdapWriteException(String.format("User %s failed to add user %s with dn %s. Error code: %s",
                         creatorUsername, user.getUsername(), userEntry.getDn(), resultCode));
             }
 
-        } catch (LdapException | CursorException e) {
+        } catch (LdapException e) {
             throw new LdapWriteException(String.format("User %s failed to add user %s",
                     creatorUsername, user.getUsername()), e);
         } finally {
-            unbind(connection);
-            IOUtils.closeQuietly(connection);
+            ConnectionUtils.unbind(connection);
         }
     }
 
@@ -155,15 +166,13 @@ public class ApacheDsFacade implements LdapFacade {
 
         LdapConnection connection = null;
         try {
-            connection = new LdapNetworkConnection(ldapHost, ldapPort, ldapUseSsl);
-            connection.bind(currentUser.getDn(), adminPassword);
+            connection = ConnectionUtils.getConnectionAndBindUser(ldapHost, ldapPort, ldapUseSsl, currentUser.getDn(), adminPassword);
 
             return entryHelper.getAllUsers(connection);
         } catch (LdapException | CursorException e) {
             throw new LdapReadException("User " + adminUsername + " failed to retrieve users", e);
         } finally {
-            unbind(connection);
-            IOUtils.closeQuietly(connection);
+            ConnectionUtils.unbind(connection);
         }
     }
 
@@ -173,8 +182,7 @@ public class ApacheDsFacade implements LdapFacade {
 
         LdapConnection connection = null;
         try {
-            connection = new LdapNetworkConnection(ldapHost, ldapPort, ldapUseSsl);
-            connection.bind(currentUser.getDn(), adminPassword);
+            connection = ConnectionUtils.getConnectionAndBindUser(ldapHost, ldapPort, ldapUseSsl, currentUser.getDn(), adminPassword);
 
             entryHelper.deleteUser(connection, username);
 
@@ -182,9 +190,14 @@ public class ApacheDsFacade implements LdapFacade {
         } catch (LdapException | CursorException e) {
             throw new LdapReadException("User " + adminUsername + " failed to delete user", e);
         } finally {
-            unbind(connection);
-            IOUtils.closeQuietly(connection);
+            ConnectionUtils.unbind(connection);
         }
+    }
+
+    @Override
+    public LdapNetworkConnection getConnectionForUser(String username, String password) {
+        return ConnectionUtils.getConnectionAndBindUser(ldapHost, ldapPort, ldapUseSsl,
+                ((ApacheDsUser) findUser(username)).getDn(), password);
     }
 
     private boolean bindUnbindUser(ApacheDsUser user, String password) {
@@ -197,16 +210,6 @@ public class ApacheDsFacade implements LdapFacade {
         } catch (IOException | LdapException e) {
             LOG.warn("Unable to authenticate user", e);
             return false;
-        }
-    }
-
-    private void unbind(LdapConnection connection) {
-        if (connection != null && connection.isAuthenticated()) {
-            try {
-                connection.unBind();
-            } catch (LdapException e) {
-                LOG.error("Error while unbinding the connection", e);
-            }
         }
     }
 

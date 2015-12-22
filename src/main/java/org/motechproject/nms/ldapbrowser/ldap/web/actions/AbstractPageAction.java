@@ -19,6 +19,7 @@ public abstract class AbstractPageAction implements IStreamingAction {
 
     private static final String STATES = "states";
     private static final String DISTRICTS = "districts";
+    private static final String STATE_DISTRICTS = "stateDistricts";
 
     private OutputStream outputStream;
     private TemplateEngine templateEngine;
@@ -83,25 +84,9 @@ public abstract class AbstractPageAction implements IStreamingAction {
     }
 
     protected void addRegionalDataToModel(LdapUser currentUser, LdapUser editedUser) {
-//        if (currentUser.getRoles().isNationalLevel()) {
-//            thymeleafContext.setVariable(STATES, regionService.availableStateNames());
-//            // load districts if a state is selected
-//            if (!StringUtils.isEmpty(editedUser.getState())) {
-//                thymeleafContext.setVariable(DISTRICTS, regionService.availableDistrictNames(editedUser.getState()));
-//            }
-//        } else if (currentUser.isStateLevel()) {
-//            // one state and a list of districts in this case
-//            thymeleafContext.setVariable(STATES, Collections.singletonList(currentUser.getState()));
-//            thymeleafContext.setVariable(DISTRICTS, regionService.availableDistrictNames(currentUser.getState()));
-//        } else if (currentUser.isDistrictLevel()) {
-//            // one state and one district
-//            thymeleafContext.setVariable(STATES, Collections.singletonList(currentUser.getState()));
-//            thymeleafContext.setVariable(DISTRICTS, Collections.singletonList(currentUser.getDistrict()));
-//        } else {
-//            throw new IllegalStateException("User " + currentUser.getName() + " has wrong admin state");
-//        }
         thymeleafContext.setVariable(STATES, regionService.availableStateNames());
         thymeleafContext.setVariable(DISTRICTS, regionService.allAvailableDistrictInfo());
+        thymeleafContext.setVariable(STATE_DISTRICTS, regionService.availableDistrictNames(editedUser.getState()));
     }
 
     protected LdapUser getCurrentUser() {

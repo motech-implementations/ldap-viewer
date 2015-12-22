@@ -3,6 +3,7 @@ package org.motechproject.nms.ldapbrowser.ldap.web.actions.get;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 import org.motechproject.nms.ldapbrowser.ldap.web.Views;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.AbstractPageAction;
+import org.motechproject.nms.ldapbrowser.support.web.LdapUserDto;
 
 import java.io.IOException;
 
@@ -17,7 +18,7 @@ public class EditUserPageAction extends AbstractPageAction {
         LdapUser editedUser = getLdapUserService().getUser(username);
         LdapUser currentUser = getCurrentUser();
 
-        setModelVariable(Views.USER_VAR, editedUser);
+        setModelVariable(Views.USER_VAR, new LdapUserDto(editedUser));
         setModelVariable(UI_EDIT, true);
         addRegionalDataToModel(currentUser, editedUser);
 

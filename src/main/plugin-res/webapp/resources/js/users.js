@@ -1,12 +1,13 @@
 $(document).ready( function () {
 
-    var api = $('meta[name=userapi]').attr("content");
+    var userApi = $('meta[name=userapi]').attr("content");
+    var api = $('meta[name=api]').attr("content");
 
     var table = $('#user_table').DataTable({
         "processing": true,
         "serverSide": false,
         "ajax": {
-            "url": api,
+            "url": userApi,
             "type": "POST",
             "contentType": "application/json",
             "data": function ( d ) {
@@ -46,7 +47,7 @@ $(document).ready( function () {
     // replace districts on state change
     $("#state").change(function() {
         var state = $(this).val();
-        $.get('../api/districts/' + state, function(data) {
+        $.get(api + '/districts/' + state, function(data) {
             var selectEl = $("#district");
             selectEl.empty(); // remove old options
 
@@ -61,3 +62,6 @@ $(document).ready( function () {
     });
 } );
 
+function deleteUser(username) {
+    $.post(username + '/delete');
+}

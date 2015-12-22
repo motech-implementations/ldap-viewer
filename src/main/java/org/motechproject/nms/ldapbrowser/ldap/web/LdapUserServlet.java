@@ -74,7 +74,7 @@ public class LdapUserServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
 
-
+            writeResposne(resp, out);
         } catch (Exception e) {
             throw new ServletException("Error while executing POST request: " + req.getContextPath(), e);
         }
@@ -106,7 +106,7 @@ public class LdapUserServlet extends HttpServlet {
         DeleteUserAction action = new DeleteUserAction();
 
         ActionHarness actionHarness = prepareAction(action, req, resp, out);
-        String username = urlMatcher.extractUsernameForDelete(req.getContextPath());
+        String username = urlMatcher.extractUsernameForDelete(req.getPathInfo());
         actionHarness.setValue(USERNAME, username);
 
         action.execute();

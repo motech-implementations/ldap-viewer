@@ -1,5 +1,6 @@
 package org.motechproject.nms.ldapbrowser.region.dummy;
 
+import org.motechproject.nms.ldapbrowser.ldap.DistrictInfo;
 import org.motechproject.nms.ldapbrowser.region.RegionProvider;
 
 import java.util.Arrays;
@@ -20,5 +21,10 @@ public class DummyRegionProvider implements RegionProvider {
         } else {
             return Arrays.asList("dist1", "dist2");
         }
+    }
+
+    @Override
+    public List<DistrictInfo> getAllAvailableDistricts() {
+        return null;
     }
 }

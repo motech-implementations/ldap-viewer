@@ -1,5 +1,6 @@
 package org.motechproject.nms.ldapbrowser.ldap.dummy;
 
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
 import org.motechproject.nms.ldapbrowser.ldap.LdapFacade;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 
@@ -66,6 +67,11 @@ public class DummyLdapFacade implements LdapFacade {
     }
 
     @Override
+    public LdapNetworkConnection getConnectionForUser(String username, String password) {
+        return null;
+    }
+
+    @Override
     public void addLdapUserEntry(LdapUser user, String creatorUsername, String creatorPassword) {
         users.add(user);
     }
@@ -86,8 +92,7 @@ public class DummyLdapFacade implements LdapFacade {
         Iterator<LdapUser> it = users.iterator();
         while (it.hasNext()) {
             LdapUser user = it.next();
-            if ((!LdapUser.ALL.equals(state) && !state.equals(user.getState())) ||
-                    (!LdapUser.ALL.equals(district) && !district.equals(user.getDistrict()))) {
+            if (!state.equals(user.getState()) || !district.equals(user.getDistrict())) {
                 it.remove();
             }
         }

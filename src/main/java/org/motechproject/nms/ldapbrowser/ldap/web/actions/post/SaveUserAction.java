@@ -1,6 +1,5 @@
 package org.motechproject.nms.ldapbrowser.ldap.web.actions.post;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.motechproject.nms.ldapbrowser.ldap.LdapRole;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 import org.motechproject.nms.ldapbrowser.ldap.RoleType;
@@ -79,6 +78,9 @@ public class SaveUserAction extends AbstractPageAction {
                     break;
                 case "mobile":
                     user.setMobileNumber(entry.getValue()[0]);
+                    break;
+                case "uiEdit":
+                    user.setUiEdit(entry.getValue()[0].equals("true"));
                     break;
                 default:
                     parseUserRole(user, entry.getKey(), entry.getValue());

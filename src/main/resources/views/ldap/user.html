@@ -2,7 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title th:text="#{title}"></title>
+
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="api" th:content="@{/plugin/nms-users/api}"/>
 
     <link href="../../../content/nms-users-res/css/bootstrap.min.css" rel="stylesheet" media="screen" th:href="@{/content/nms-users-res/css/bootstrap.min.css}"/>
     <link href="../../../content/nms-users-res/css/core.css" rel="stylesheet" media="screen" th:href="@{/content/nms-users-res/css/core.css}" />
@@ -21,45 +23,47 @@
         <!-- /* The message code is returned from the @Controller */ -->
         <div th:replace="fragments/alert :: alert (type=${#strings.toLowerCase(message.type)}, message=#{${message.message}})">&nbsp;</div>
     </th:block>
-    <form class="form-horizontal form-user" method="post" th:action="@{/plugin/nms-users/ldap/user}" th:object="${user}">
+    <form class="form-horizontal form-user" method="post" th:action="@{/plugin/nms-users/ldap/user}">
         <div class="form-group">
             <label for="username" th:utext="#{user.username}"></label>
-            <input type="text" class="form-control" id="username" placeholder="Username" th:name="username" th:field="${user.username}"
+            <input type="text" class="form-control" id="username" placeholder="Username" th:name="username" th:value="${user.username}"
                    th:attrappend="readonly=${uiEdit ? 'true' : 'false'}"/>
         </div>
         <div class="form-group">
             <label for="name" th:utext="#{user.password}"></label>
-            <input type="password" class="form-control" id="password" placeholder="Password" th:name="password" th:field="${user.password}"/>
+            <input type="password" class="form-control" id="password" placeholder="Password" th:name="password" th:value="${user.password}"/>
         </div>
         <div class="form-group">
             <label for="name" th:utext="#{user.name}"></label>
-            <input type="text" class="form-control" id="name" placeholder="Name" th:name="name" th:field="${name}"/>
+            <input type="text" class="form-control" id="name" placeholder="Name" th:name="name" th:value="${user.name}"/>
         </div>
         <div class="form-group">
             <label for="email" th:utext="#{user.email}"></label>
-            <input type="email" class="form-control" id="email" placeholder="Email" th:name="email" th:field="${email}"/>
+            <input type="email" class="form-control" id="email" placeholder="Email" th:name="email" th:value="${user.email}"/>
         </div>
         <div class="form-group">
             <label for="phone" th:utext="#{user.phone}"></label>
-            <input type="tel" class="form-control" id="phone" placeholder="Phone number" th:name="phone" th:field="${phone}"/>
+            <input type="tel" class="form-control" id="phone" placeholder="Phone number" th:name="phone" th:value="${user.workNumber}"/>
         </div>
         <div class="form-group">
             <label for="mobile" th:utext="#{user.mobile}"></label>
-            <input type="tel" class="form-control" id="mobile" placeholder="Mobile phone number" th:name="mobile" th:field="${mobile}"/>
+            <input type="tel" class="form-control" id="mobile" placeholder="Mobile phone number" th:name="mobile" th:value="${user.mobileNumber}"/>
         </div>
         <div class="form-group">
             <label for="state" th:utext="#{user.state}"></label>
-            <select class="form-control" id="state" th:field="*{state}">
-                <option th:each="state: ${states}" th:value="${state}" th:name="state" th:text="${state}">${state}</option>
+            <select class="form-control" id="state" th:name="state">
+                <option th:each="state: ${states}" th:value="${state}" th:text="${state}"
+                        th:attrappend="selected=${user.state == state ? 'true' : 'false'}"></option>
             </select>
         </div>
         <div class="form-group">
             <label for="district" th:utext="#{user.district}"></label>
-            <select class="form-control" id="district" th:field="*{district}">
-                <option th:each="info: ${districts}" th:value="${district}" th:name="district" th:text="${info.district}"></option>
+            <select class="form-control" id="district" th:name="district">
+                <option th:each="district: ${stateDistricts}" th:value="${district}" th:text="${district}"
+                        th:attrappend="selected=${user.district == district ? 'true' : 'false'}"></option>
             </select>
         </div>
-        <input type="hidden" id="uiEdit" th:field="*{uiEdit}"/>
+        <input type="hidden" id="uiEdit" th:name="uiEdit" th:value="*{uiEdit}"/>
         <div class="form-group">
             <label th:utext="#{roles.state}"></label>
             <table id="states_table" class="display">
@@ -74,9 +78,9 @@
                 <tbody>
                     <tr th:each="state : ${states}">
                         <td th:text="${state}"></td>
-                        <td><input type="radio" th:name="${'role_state_' + state}" th:value="UA" /></td>
-                        <td><input type="radio" th:name="${'role_state_' + state}" th:value="V" /></td>
-                        <td><input type="radio" th:name="${'role_state_' + state}" th:value="N" th:checked="true" /></td>
+                        <td><input type="radio" th:name="${'role_state_' + state}" th:value="UA" th:checked="${#lists.contains(user.roles, 'UA-' + state)}" /></td>
+                        <td><input type="radio" th:name="${'role_state_' + state}" th:value="V" th:checked="${#lists.contains(user.roles, 'V-' + state)}" /></td>
+                        <td><input type="radio" th:name="${'role_state_' + state}" th:value="N" /></td>
                     </tr>
                 </tbody>
             </table>
@@ -96,19 +100,18 @@
                 <tbody>
                     <tr th:each="info : ${districts}">
                         <td th:text="${info.district}"></td>
-                        <td><input type="radio" th:name="${'role_district_' + info.state + '__' + info.district}" th:value="UA" /></td>
-                        <td><input type="radio" th:name="${'role_district_' + info.state + '__' + info.district}" th:value="V" /></td>
-                        <td><input type="radio" th:name="${'role_district_' + info.state + '__' + info.district}" th:value="N" th:checked="true" /></td>
+                        <td><input type="radio" th:name="${'role_district_' + info.state + '__' + info.district}" th:value="UA" th:checked="${#lists.contains(user.roles, 'UA-' + info.state + '__' + info.district)}" /></td>
+                        <td><input type="radio" th:name="${'role_district_' + info.state + '__' + info.district}" th:value="V" th:checked="${#lists.contains(user.roles, 'V-' + info.state + '__' + info.district)}" /></td>
+                        <td><input type="radio" th:name="${'role_district_' + info.state + '__' + info.district}" th:value="N" /></td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div class="form-group">
             <div class="">
-                <a th:if="${uiEdit}" th:href="@{/plugin/nms-users/ldap/user/{username}/delete(username=${user.username})}"
+                <a th:if="${uiEdit}"
                    class="btn btn-danger" role="button" th:utext="#{delete}"
-                   th:onclick="'return confirm(\'' + #{user.delete.confirm} + '\');'">
-
+                   th:onclick="'return deleteUser(\'' + ${user.username} + '\');'">
                 </a>
                 <button type="submit" class="btn btn-primary" th:utext="#{save}"></button>
                 <a th:href="@{/plugin/nms-users/ldap}" class="btn btn-default" role="button" th:utext="#{cancel}"></a>

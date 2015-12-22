@@ -1,5 +1,6 @@
 package org.motechproject.nms.ldapbrowser.ldap;
 
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -9,19 +10,18 @@ import java.util.Objects;
 @XmlRootElement
 public class LdapRole {
 
-    public static final String ALL = "ALL";
-
     private String state;
     private String district;
     private boolean isAdmin;
 
     public LdapRole() {
+        this(null, null, false);
     }
 
     public LdapRole(String state, String district, boolean isAdmin) {
         this.isAdmin = isAdmin;
-        this.district = district;
-        this.state = state;
+        this.district = district == null ? StringUtils.EMPTY : district;
+        this.state = state == null ? StringUtils.EMPTY : state;
     }
 
     public boolean isAdmin() {
@@ -37,6 +37,9 @@ public class LdapRole {
     }
 
     public void setDistrict(String district) {
+        if (district == null) {
+            district = StringUtils.EMPTY;
+        }
         this.district = district;
     }
 
@@ -45,25 +48,10 @@ public class LdapRole {
     }
 
     public void setState(String state) {
+        if (state == null) {
+            state = StringUtils.EMPTY;
+        }
         this.state = state;
-    }
-
-    @XmlTransient
-    @JsonIgnore
-    public boolean isNationalLevel() {
-        return ALL.equals(district) && ALL.equals(state);
-    }
-
-    @XmlTransient
-    @JsonIgnore
-    public boolean isStateLevel() {
-        return ALL.equals(district) && !ALL.equals(state);
-    }
-
-    @XmlTransient
-    @JsonIgnore
-    public boolean isDistrictLevel() {
-        return !ALL.equals(district) && !ALL.equals(state);
     }
 
     @Override

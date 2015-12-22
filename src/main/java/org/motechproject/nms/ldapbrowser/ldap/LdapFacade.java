@@ -1,5 +1,7 @@
 package org.motechproject.nms.ldapbrowser.ldap;
 
+import org.apache.directory.ldap.client.api.LdapNetworkConnection;
+
 import java.util.List;
 
 public interface LdapFacade {
@@ -13,4 +15,6 @@ public interface LdapFacade {
     List<LdapUser> getUsers(String adminUsername, String adminPassword);
 
     void deleteUser(String username, String adminUsername, String adminPassword);
+
+    LdapNetworkConnection getConnectionForUser(String username, String password);
 }
