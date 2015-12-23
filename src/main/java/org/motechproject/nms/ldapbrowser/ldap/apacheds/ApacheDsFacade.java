@@ -1,6 +1,7 @@
 package org.motechproject.nms.ldapbrowser.ldap.apacheds;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
@@ -88,6 +89,10 @@ public class ApacheDsFacade implements LdapFacade {
         try {
             connection = ConnectionUtils.getConnectionAndBindUser(ldapHost, ldapPort, ldapUseSsl, creatorUser.getDn(), creatorPassword);
 
+            if (StringUtils.isNotBlank(user.getDistrict()) && StringUtils.isBlank(user.getState())) {
+                user.setState(entryHelper.findStateForDistrict(connection, user.getDistrict()));
+            }
+
             Entry userEntry = entryHelper.userToEntry(user);
             ApacheDsUser userPriorUpdate = (ApacheDsUser) findUser(user.getUsername());
             String userDn = userPriorUpdate != null ? userPriorUpdate.getDn().toString() :
@@ -153,7 +158,7 @@ public class ApacheDsFacade implements LdapFacade {
                         creatorUsername, user.getUsername(), userEntry.getDn(), resultCode));
             }
 
-        } catch (LdapException e) {
+        } catch (LdapException | CursorException e) {
             throw new LdapWriteException(String.format("User %s failed to add user %s",
                     creatorUsername, user.getUsername()), e);
         } finally {

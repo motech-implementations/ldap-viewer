@@ -290,6 +290,18 @@ public class EntryHelper {
         return modifications;
     }
 
+    public String findStateForDistrict(LdapConnection connection, String district) throws CursorException, LdapException {
+        List<DistrictInfo> districts = allAvailableDistrictNames(connection);
+        for (DistrictInfo info : districts) {
+            if (info.getDistrict().equals(district)) {
+                return info.getState();
+            }
+        }
+
+        // Not found oruser does not have access to the given district
+        return null;
+    }
+
     private String buildCnPartForUser(String username) {
         StringBuilder cnBuilder = new StringBuilder();
         appendCnEqual(cnBuilder);
