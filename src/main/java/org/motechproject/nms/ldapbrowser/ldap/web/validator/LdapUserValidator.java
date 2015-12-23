@@ -20,11 +20,17 @@ public class LdapUserValidator {
         if (StringUtils.isEmpty(user.getUsername())) {
             errors.add(new LdapValidatorError("username", "user.save.error.username.req"));
         }
+        if (StringUtils.isEmpty(user.getName())) {
+            errors.add(new LdapValidatorError("username", "user.save.error.name.req"));
+        }
         if (!user.isUiEdit() && StringUtils.isEmpty(user.getPassword())) {
             errors.add(new LdapValidatorError("password", "user.save.error.password.req"));
         }
         if (!StringUtils.isEmpty(user.getPassword()) && user.getPassword().length() < 5) {
             errors.add(new LdapValidatorError("password", "user.save.error.password.short"));
+        }
+        if (StringUtils.equals(user.getUsername(), user.getPassword())) {
+            errors.add(new LdapValidatorError("password", "user.save.error.password.identical"));
         }
 
         return errors;

@@ -8,6 +8,7 @@ import org.motechproject.nms.ldapbrowser.ldap.web.Views;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.AbstractPageAction;
 import org.motechproject.nms.ldapbrowser.ldap.web.validator.LdapUserValidator;
 import org.motechproject.nms.ldapbrowser.ldap.web.validator.LdapValidatorError;
+import org.motechproject.nms.ldapbrowser.support.web.LdapUserDto;
 import org.motechproject.nms.ldapbrowser.support.web.MessageHelper;
 
 import java.io.IOException;
@@ -40,13 +41,14 @@ public class SaveUserAction extends AbstractPageAction {
             MessageHelper.addSuccessAttribute(getThymeleafContext(), "user.saved");
             printView(Views.USER_TABLE_VIEW);
         } else {
-            setModelVariable(Views.USER_VAR, user);
+            setModelVariable(Views.USER_VAR, new LdapUserDto(user));
             addRegionalDataToModel(getCurrentUser(), user);
 
             for (LdapValidatorError error : errors) {
                 // TODO: multiple errors
                 MessageHelper.addErrorAttribute(getThymeleafContext(), error.getMessage());
             }
+            printView(Views.USER_EDIT_VIEW);
         }
     }
 

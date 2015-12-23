@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
 import org.apache.directory.api.ldap.model.entry.Attribute;
+import org.apache.directory.api.ldap.model.entry.DefaultAttribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.DefaultModification;
 import org.apache.directory.api.ldap.model.entry.Entry;
@@ -14,6 +15,7 @@ import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueEx
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
+import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.search.FilterBuilder;
 import org.motechproject.nms.ldapbrowser.ldap.AttributeNames;
@@ -133,17 +135,26 @@ public class EntryHelper {
     }
 
     public Entry userToEntry(LdapUser user) throws LdapException {
-        return new DefaultEntry(
-            buildCnPartForUser(user.getUsername()) + buildDn(user.getState(), user.getDistrict(), RoleType.NONE),
+        DefaultEntry userEntry =  new DefaultEntry(
+            buildUserDn(user.getUsername(), user.getState(), user.getDistrict()),
             attrStr(OBJECT_CLASS, userClass),
             attrStr(OBJECT_CLASS, extendedUserClass),
-
-            attrStr(AttributeNames.NAME, user.getName()),
-            attrStr(AttributeNames.EMAIL, user.getEmail()),
             attrStr(AttributeNames.PASSWORD, user.getPassword()),
-            attrStr(AttributeNames.MOBILE_NUMBER, user.getMobileNumber()),
-            attrStr(AttributeNames.WORK_NUMBER, user.getWorkNumber())
+            attrStr(AttributeNames.NAME, user.getName())
         );
+
+        // Optional attributes
+        if (StringUtils.isNotBlank(user.getEmail())) {
+            userEntry.add(new DefaultAttribute(AttributeNames.EMAIL, user.getEmail()));
+        }
+        if (StringUtils.isNotBlank(user.getMobileNumber())) {
+            userEntry.add(new DefaultAttribute(AttributeNames.MOBILE_NUMBER, user.getMobileNumber()));
+        }
+        if (StringUtils.isNotBlank(user.getWorkNumber())) {
+            userEntry.add(new DefaultAttribute(AttributeNames.NAME, user.getWorkNumber()));
+        }
+
+        return userEntry;
     }
 
     public String getAttributeName(RoleType type) {
@@ -270,19 +281,19 @@ public class EntryHelper {
             Modification modification = new DefaultModification(ModificationOperation.REPLACE_ATTRIBUTE, AttributeNames.NAME, userEntry.get(AttributeNames.NAME).getString());
             modifications.add(modification);
         }
-        if (!userEntry.get(AttributeNames.EMAIL).contains(userPriorUpdate.getEmail())) {
+        if (userEntry.containsAttribute(AttributeNames.EMAIL) && !userEntry.get(AttributeNames.EMAIL).contains(userPriorUpdate.getEmail())) {
             Modification modification = new DefaultModification(ModificationOperation.REPLACE_ATTRIBUTE, AttributeNames.EMAIL, userEntry.get(AttributeNames.EMAIL).getString());
             modifications.add(modification);
         }
-        if (!userEntry.get(AttributeNames.MOBILE_NUMBER).contains(userPriorUpdate.getMobileNumber())) {
+        if (userEntry.containsAttribute(AttributeNames.MOBILE_NUMBER) && !userEntry.get(AttributeNames.MOBILE_NUMBER).contains(userPriorUpdate.getMobileNumber())) {
             Modification modification = new DefaultModification(ModificationOperation.REPLACE_ATTRIBUTE, AttributeNames.MOBILE_NUMBER, userEntry.get(AttributeNames.MOBILE_NUMBER).getString());
             modifications.add(modification);
         }
-        if (!userEntry.get(AttributeNames.WORK_NUMBER).contains(userPriorUpdate.getWorkNumber())) {
+        if (userEntry.containsAttribute(AttributeNames.WORK_NUMBER) && !userEntry.get(AttributeNames.WORK_NUMBER).contains(userPriorUpdate.getWorkNumber())) {
             Modification modification = new DefaultModification(ModificationOperation.REPLACE_ATTRIBUTE, AttributeNames.WORK_NUMBER, userEntry.get(AttributeNames.WORK_NUMBER).getString());
             modifications.add(modification);
         }
-        if (StringUtils.isNotBlank(userEntry.get(AttributeNames.PASSWORD).getString())) {
+        if (userEntry.containsAttribute(AttributeNames.PASSWORD) && StringUtils.isNotBlank(userEntry.get(AttributeNames.PASSWORD).getString())) {
             Modification modification = new DefaultModification(ModificationOperation.REPLACE_ATTRIBUTE, AttributeNames.PASSWORD, userEntry.get(AttributeNames.PASSWORD).getString());
             modifications.add(modification);
         }
