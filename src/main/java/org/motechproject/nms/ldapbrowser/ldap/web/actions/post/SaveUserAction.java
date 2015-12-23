@@ -1,5 +1,6 @@
 package org.motechproject.nms.ldapbrowser.ldap.web.actions.post;
 
+import org.apache.commons.lang.StringUtils;
 import org.motechproject.nms.ldapbrowser.ldap.LdapRole;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 import org.motechproject.nms.ldapbrowser.ldap.RoleType;
@@ -20,6 +21,9 @@ public class SaveUserAction extends AbstractPageAction {
     private static final String ROLE_PREFIX = "role_";
     private static final String DISTRICT = "district_";
     private static final String STATE = "state_";
+
+    private static final String NATIONAL_LEVEL = "National level";
+    private static final String STATE_LEVEL = "State level";
 
     private static final String VIEWER = "V";
     private static final String USER_ADMIN = "UA";
@@ -65,10 +69,10 @@ public class SaveUserAction extends AbstractPageAction {
                     user.setPassword(entry.getValue()[0]);
                     break;
                 case "state":
-                    user.setState(entry.getValue()[0]);
+                    user.setState(NATIONAL_LEVEL.equals(entry.getValue()[0]) ? StringUtils.EMPTY : entry.getValue()[0]);
                     break;
                 case "district":
-                    user.setDistrict(entry.getValue()[0]);
+                    user.setDistrict(STATE_LEVEL.equals(entry.getValue()[0]) ? StringUtils.EMPTY : entry.getValue()[0]);
                     break;
                 case "email":
                     user.setEmail(entry.getValue()[0]);

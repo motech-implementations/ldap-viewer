@@ -90,7 +90,8 @@ public class ApacheDsFacade implements LdapFacade {
 
             Entry userEntry = entryHelper.userToEntry(user);
             ApacheDsUser userPriorUpdate = (ApacheDsUser) findUser(user.getUsername());
-            String userDn = userPriorUpdate.getDn().toString();
+            String userDn = userPriorUpdate != null ? userPriorUpdate.getDn().toString() :
+                    entryHelper.buildUserDn(user.getUsername(), user.getState(), user.getDistrict());
 
             ResultCodeEnum resultCode = null;
 

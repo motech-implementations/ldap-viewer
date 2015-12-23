@@ -97,10 +97,24 @@ public class EntryHelper {
     }
 
     public void deleteUser(LdapConnection connection, String username) throws CursorException, LdapException {
-        LdapUser user = findUserByUsername(connection, username);
-        String userDn = buildUserDn(username, user.getState(), user.getDistrict());
+        ApacheDsUser user = (ApacheDsUser) findUserByUsername(connection, username);
+        EntryCursor cursor = getAllRolesCursor(connection);
 
-        connection.delete(userDn);
+        // Remove user from all the role entries he is assigned to
+        while (cursor.next()) {
+            Entry role = cursor.get();
+            if (role.contains(memberAttrName, user.getDn().toString())) {
+                Modification removeRole = new DefaultModification(ModificationOperation.REMOVE_ATTRIBUTE, memberAttrName, user.getDn().toString());
+                connection.modify(role.getDn(), removeRole);
+            }
+            if (role.contains(occupantAttrName, user.getDn().toString())) {
+                Modification removeRole = new DefaultModification(ModificationOperation.REMOVE_ATTRIBUTE, occupantAttrName, user.getDn().toString());
+                connection.modify(role.getDn(), removeRole);
+            }
+        }
+
+        // Remove user entry
+        connection.delete(user.getDn());
     }
 
     private LdapUser findUserByUsername(LdapConnection connection, String username) throws CursorException, LdapException {
