@@ -103,7 +103,7 @@ public class LdapUserServlet extends HttpServlet {
             return false;
         }
 
-        LdapUser user = ldapUserService.getUser(auth.getCredentials().toString());
+        LdapUser user = ldapUserService.getUser(auth.getName());
         for (LdapRole role : user.getRoles()) {
             if (role.isAdmin()) {
                 return true;
