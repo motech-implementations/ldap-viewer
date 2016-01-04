@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="#{title}">Welcome!</title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <link href="../../../content/nms-users-res/css/bootstrap.min.css" rel="stylesheet" media="screen" th:href="@{/content/nms-users-res/css/bootstrap.min.css}"/>
+    <link href="../../../content/nms-users-res/css/core.css" rel="stylesheet" media="screen" th:href="@{/content/nms-users-res/css/core.css}" />
+
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="/content/nms-users-res/js/bootstrap.min.js" th:src="@{/content/nms-users-res/js/bootstrap.min.js}"></script>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="col-sm-12 col-sm-offset-0 col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1">
+        <div th:replace="fragments/alert :: alert (type=danger, message=#{access.denied})">&nbsp;</div>
+        <a class="btn btn-default" th:onclick="'window.top.location.reload(); return false;'" role="button">Home Page</a>
+    </div>
+</div>
+</body>
+</html>

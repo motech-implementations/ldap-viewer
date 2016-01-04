@@ -1,10 +1,13 @@
 package org.motechproject.nms.ldapbrowser.ldap.web;
 
 import org.apache.commons.io.IOUtils;
+import org.motechproject.nms.ldapbrowser.ldap.LdapRole;
+import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUserService;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.AbstractPageAction;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.get.CreateUserPageAction;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.get.EditUserPageAction;
+import org.motechproject.nms.ldapbrowser.ldap.web.actions.get.NoAccessAction;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.get.UserTablePageAction;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.post.DeleteUserAction;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.post.SaveUserAction;
@@ -13,6 +16,10 @@ import org.motechproject.nms.ldapbrowser.region.RegionService;
 import org.pentaho.platform.util.beans.ActionHarness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.Authentication;
+import org.springframework.security.GrantedAuthority;
+import org.springframework.security.context.SecurityContext;
+import org.springframework.security.context.SecurityContextHolder;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 
@@ -40,10 +47,13 @@ public class LdapUserServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
+
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             String path = req.getPathInfo();
 
-            if (urlMatcher.isUserListReq(path)) {
+            if (!hasPermission()) {
+                noAccessPage(req, resp,out);
+            } else if (urlMatcher.isUserListReq(path)) {
                 userTablePage(req, resp, out);
             } else if (urlMatcher.isNewUserReq(path)) {
                 newUserPage(req, resp, out);
@@ -65,7 +75,9 @@ public class LdapUserServlet extends HttpServlet {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             String path = req.getPathInfo();
 
-            if (urlMatcher.isSaveUserReq(path)) {
+            if (!hasPermission()) {
+                noAccessPage(req, resp,out);
+            } else if (urlMatcher.isSaveUserReq(path)) {
                 saveUser(req, resp, out);
             } else if (urlMatcher.isDeleteUserReq(path)) {
                 deleteUser(req, resp, out);
@@ -78,6 +90,32 @@ public class LdapUserServlet extends HttpServlet {
         } catch (Exception e) {
             throw new ServletException("Error while executing POST request: " + req.getContextPath(), e);
         }
+    }
+
+    private boolean hasPermission() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        if (context == null) {
+            return false;
+        }
+
+        Authentication auth = context.getAuthentication();
+        if (auth == null) {
+            return false;
+        }
+
+        LdapUser user = ldapUserService.getUser(auth.getCredentials().toString());
+        for (LdapRole role : user.getRoles()) {
+            if (role.isAdmin()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void noAccessPage(HttpServletRequest req, HttpServletResponse resp, OutputStream out) throws Exception {
+        NoAccessAction action = new NoAccessAction();
+        prepareAction(action, req, resp, out);
+        action.execute();
     }
 
     private void userTablePage(HttpServletRequest req, HttpServletResponse resp, OutputStream out) throws Exception {
