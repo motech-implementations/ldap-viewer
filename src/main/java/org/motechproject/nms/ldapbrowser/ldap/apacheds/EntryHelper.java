@@ -151,7 +151,7 @@ public class EntryHelper {
             userEntry.add(new DefaultAttribute(AttributeNames.MOBILE_NUMBER, user.getMobileNumber()));
         }
         if (StringUtils.isNotBlank(user.getWorkNumber())) {
-            userEntry.add(new DefaultAttribute(AttributeNames.NAME, user.getWorkNumber()));
+            userEntry.add(new DefaultAttribute(AttributeNames.WORK_NUMBER, user.getWorkNumber()));
         }
 
         return userEntry;
