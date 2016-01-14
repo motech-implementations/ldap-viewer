@@ -1,6 +1,7 @@
 package org.motechproject.nms.ldapbrowser.support.web;
 
 import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.thymeleaf.Arguments;
 import org.thymeleaf.messageresolver.IMessageResolver;
 import org.thymeleaf.messageresolver.MessageResolution;
@@ -24,7 +25,13 @@ public class MessageResolver implements IMessageResolver {
     @Override
     public MessageResolution resolveMessage(Arguments arguments, String key, Object[] messageParameters) {
         Locale locale = arguments.getContext().getLocale();
-        String msg = messageSource.getMessage(key, messageParameters, locale);
+        String msg;
+        try {
+            msg = messageSource.getMessage(key, messageParameters, locale);
+        } catch (NoSuchMessageException e) {
+            msg = key;
+        }
+
         return new MessageResolution(msg);
     }
 

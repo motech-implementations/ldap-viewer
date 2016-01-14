@@ -1,6 +1,6 @@
 package org.motechproject.nms.ldapbrowser.ldap.apacheds;
 
-import org.apache.commons.io.IOUtils;
+import edu.emory.mathcs.backport.java.util.Arrays;
 import org.apache.commons.lang.StringUtils;
 import org.apache.directory.api.ldap.model.cursor.CursorException;
 import org.apache.directory.api.ldap.model.cursor.EntryCursor;
@@ -13,7 +13,11 @@ import org.apache.directory.api.ldap.model.message.AddRequest;
 import org.apache.directory.api.ldap.model.message.AddRequestImpl;
 import org.apache.directory.api.ldap.model.message.AddResponse;
 import org.apache.directory.api.ldap.model.message.ModifyRequest;
+import org.apache.directory.api.ldap.model.message.ModifyRequestImpl;
+import org.apache.directory.api.ldap.model.message.ModifyResponse;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
+import org.apache.directory.api.ldap.model.message.ResultResponse;
+import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.LdapConnectionPool;
 import org.apache.directory.ldap.client.api.LdapNetworkConnection;
@@ -28,12 +32,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public class ApacheDsFacade implements LdapFacade {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApacheDsFacade.class);
+
+    private static final String EXCEPTION = "Exception:";
 
     private String ldapHost;
     private int ldapPort;
@@ -89,6 +96,8 @@ public class ApacheDsFacade implements LdapFacade {
         try {
             connection = ConnectionUtils.getConnectionAndBindUser(ldapHost, ldapPort, ldapUseSsl, creatorUser.getDn(), creatorPassword);
 
+            List<String> errorMessages = new ArrayList<>();
+
             if (StringUtils.isNotBlank(user.getDistrict()) && StringUtils.isBlank(user.getState())) {
                 user.setState(entryHelper.findStateForDistrict(connection, user.getDistrict()));
             }
@@ -98,7 +107,7 @@ public class ApacheDsFacade implements LdapFacade {
             String userDn = userPriorUpdate != null ? userPriorUpdate.getDn().toString() :
                     entryHelper.buildUserDn(user.getUsername(), user.getState(), user.getDistrict());
 
-            ResultCodeEnum resultCode = null;
+            ResultCodeEnum resultCode;
 
             if (userPriorUpdate == null) {
                 // Adds user entry
@@ -106,13 +115,24 @@ public class ApacheDsFacade implements LdapFacade {
                 addRequest.setEntry(userEntry);
                 AddResponse addResponse = connection.add(addRequest);
                 resultCode = addResponse.getLdapResult().getResultCode();
+
+                handleErrorMessage(errorMessages, addResponse);
             } else {
                 // Updates user entry
                 List<Modification> modifications = entryHelper.prepareModificationRequests(userEntry, userPriorUpdate);
 
+                ModifyRequest request = new ModifyRequestImpl();
+
                 for (Modification modification : modifications) {
-                    connection.modify(userPriorUpdate.getDn(), modification);
+                    request.addModification(modification);
                 }
+
+                resultCode = executeModifyRequestAndHandleErrorMessages(connection, userPriorUpdate.getDn(), request, errorMessages);
+            }
+
+            if (resultCode != ResultCodeEnum.SUCCESS) {
+                throw new LdapWriteException(String.format("User %s failed to add or update user %s with dn %s. Error code: %s ",
+                        creatorUsername, user.getUsername(), userEntry.getDn(), resultCode), errorMessages);
             }
 
             // Adds roles
@@ -137,7 +157,10 @@ public class ApacheDsFacade implements LdapFacade {
                     Modification modification = new DefaultModification(ModificationOperation.REMOVE_ATTRIBUTE,
                             entryHelper.getAttributeName(role.isAdmin() ? RoleType.USER_ADMIN : RoleType.VIEWER), userDn
                     );
-                    connection.modify(roleDn, modification);
+                    ModifyRequest request = new ModifyRequestImpl();
+                    request.addModification(modification);
+
+                    resultCode = executeModifyRequestAndHandleErrorMessages(connection, new Dn(roleDn), request, errorMessages);
                 }
             }
 
@@ -146,21 +169,25 @@ public class ApacheDsFacade implements LdapFacade {
                 // Roles present in new user object but not present in previous user object must be added
                 String roleDn = entryHelper.buildDn(role.getState(), role.getDistrict(), role.isAdmin() ? RoleType.USER_ADMIN : RoleType.VIEWER);
 
+                ModifyRequest request = new ModifyRequestImpl();
+
                 Modification modification = new DefaultModification(ModificationOperation.ADD_ATTRIBUTE,
                         entryHelper.getAttributeName(role.isAdmin() ? RoleType.USER_ADMIN : RoleType.VIEWER), userDn
                 );
-                connection.modify(roleDn, modification);
+
+                request.addModification(modification);
+
+                resultCode = executeModifyRequestAndHandleErrorMessages(connection, new Dn(roleDn), request, errorMessages);
             }
 
-            //TODO: result codes for modify
-            if (resultCode != ResultCodeEnum.SUCCESS && userPriorUpdate == null) {
-                throw new LdapWriteException(String.format("User %s failed to add user %s with dn %s. Error code: %s",
-                        creatorUsername, user.getUsername(), userEntry.getDn(), resultCode));
+            if (resultCode != ResultCodeEnum.SUCCESS) {
+                throw new LdapWriteException(String.format("User %s failed to add or update roles of user %s with dn %s. Error code: %s ",
+                        creatorUsername, user.getUsername(), userEntry.getDn(), resultCode), errorMessages);
             }
 
-        } catch (LdapException | CursorException e) {
-            throw new LdapWriteException(String.format("User %s failed to add user %s",
-                    creatorUsername, user.getUsername()), e);
+        } catch (CursorException | LdapException e) {
+            throw new LdapWriteException(String.format("User %s failed to add or update user %s ",
+                    creatorUsername, user.getUsername()), e, Arrays.asList(new String[]{e.getMessage()}));
         } finally {
             ConnectionUtils.unbind(connection);
         }
@@ -225,6 +252,41 @@ public class ApacheDsFacade implements LdapFacade {
             throw new LdapAuthException("Unable to find user: " + username);
         }
         return currentUser;
+    }
+
+    private ResultCodeEnum executeModifyRequestAndHandleErrorMessages(LdapConnection connection, Dn dn, ModifyRequest request, List<String> errorMessages)
+            throws LdapException {
+
+        if (!request.getModifications().isEmpty()) {
+            request.setName(dn);
+            ModifyResponse response = connection.modify(request);
+            ResultCodeEnum resultCode = response.getLdapResult().getResultCode();
+            handleErrorMessage(errorMessages, response);
+
+            return resultCode;
+        } else {
+            // Nothing to modify - nothing to fail :)
+            return ResultCodeEnum.SUCCESS;
+        }
+    }
+
+    private void handleErrorMessage(List<String> errors, ResultResponse resultResponse) {
+        if (resultResponse.getLdapResult().getResultCode() != ResultCodeEnum.SUCCESS) {
+            String diagnosticMessage = resultResponse.getLdapResult().getDiagnosticMessage();
+
+            // Do not include stacktrace in the message
+            diagnosticMessage = parseDiagnosticMessage(diagnosticMessage);
+            errors.add(diagnosticMessage);
+        }
+    }
+
+    private String parseDiagnosticMessage(String diagnosticMessage) {
+        int offset = diagnosticMessage.indexOf(EXCEPTION);
+        if (offset != -1) {
+            diagnosticMessage = diagnosticMessage.substring(offset + EXCEPTION.length(), diagnosticMessage.indexOf("\r\n", offset));
+        }
+
+        return diagnosticMessage;
     }
 
     public void setLdapHost(String ldapHost) {

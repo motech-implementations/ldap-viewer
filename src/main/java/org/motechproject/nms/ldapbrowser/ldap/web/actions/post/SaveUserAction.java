@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.motechproject.nms.ldapbrowser.ldap.LdapRole;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 import org.motechproject.nms.ldapbrowser.ldap.RoleType;
+import org.motechproject.nms.ldapbrowser.ldap.ex.LdapWriteException;
 import org.motechproject.nms.ldapbrowser.ldap.web.Views;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.AbstractPageAction;
 import org.motechproject.nms.ldapbrowser.ldap.web.validator.LdapUserValidator;
@@ -23,6 +24,8 @@ public class SaveUserAction extends AbstractPageAction {
     private static final String DISTRICT = "district_";
     private static final String STATE = "state_";
 
+    private static final String UI_EDIT = "uiEdit";
+
     private static final String NATIONAL_LEVEL = "National level";
     private static final String STATE_LEVEL = "State level";
 
@@ -36,13 +39,30 @@ public class SaveUserAction extends AbstractPageAction {
         List<LdapValidatorError> errors = validator.validate(user);
 
         if (errors.isEmpty()) {
-            getLdapUserService().saveUser(user);
+            try {
+                getLdapUserService().saveUser(user);
+            } catch (LdapWriteException e) {
+                setModelVariable(Views.USER_VAR, new LdapUserDto(user));
+                addRegionalDataToModel(getCurrentUser(), user);
+
+                if (user.isUiEdit()) {
+                    setModelVariable(UI_EDIT, true);
+                }
+
+                MessageHelper.addErrorAttribute(getThymeleafContext(), e.getMessage().concat(e.getUnderlyingLdapReasons()));
+                printView(Views.USER_EDIT_VIEW);
+                return;
+            }
 
             MessageHelper.addSuccessAttribute(getThymeleafContext(), "user.saved");
             printView(Views.USER_TABLE_VIEW);
         } else {
             setModelVariable(Views.USER_VAR, new LdapUserDto(user));
             addRegionalDataToModel(getCurrentUser(), user);
+
+            if (user.isUiEdit()) {
+                setModelVariable(UI_EDIT, true);
+            }
 
             for (LdapValidatorError error : errors) {
                 // TODO: multiple errors

@@ -15,7 +15,6 @@ import org.apache.directory.api.ldap.model.exception.LdapInvalidAttributeValueEx
 import org.apache.directory.api.ldap.model.message.SearchScope;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.name.Rdn;
-import org.apache.directory.api.ldap.model.schema.AttributeType;
 import org.apache.directory.ldap.client.api.LdapConnection;
 import org.apache.directory.ldap.client.api.search.FilterBuilder;
 import org.motechproject.nms.ldapbrowser.ldap.AttributeNames;

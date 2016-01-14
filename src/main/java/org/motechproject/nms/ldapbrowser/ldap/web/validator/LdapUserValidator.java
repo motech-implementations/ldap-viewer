@@ -29,8 +29,8 @@ public class LdapUserValidator {
         if (!StringUtils.isEmpty(user.getPassword()) && user.getPassword().length() < 5) {
             errors.add(new LdapValidatorError("password", "user.save.error.password.short"));
         }
-        if (StringUtils.equals(user.getUsername(), user.getPassword())) {
-            errors.add(new LdapValidatorError("password", "user.save.error.password.identical"));
+        if (StringUtils.isNotBlank(user.getPassword()) && StringUtils.contains(user.getUsername(), user.getPassword())) {
+           errors.add(new LdapValidatorError("password", "user.save.error.password.identical"));
         }
 
         return errors;
