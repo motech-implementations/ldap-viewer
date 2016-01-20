@@ -42,12 +42,7 @@ public class SaveUserAction extends AbstractPageAction {
             try {
                 getLdapUserService().saveUser(user);
             } catch (LdapWriteException e) {
-                setModelVariable(Views.USER_VAR, new LdapUserDto(user));
-                addRegionalDataToModel(getCurrentUser(), user);
-
-                if (user.isUiEdit()) {
-                    setModelVariable(UI_EDIT, true);
-                }
+                addUserSpecificVariablesToModel(user);
 
                 MessageHelper.addErrorAttribute(getThymeleafContext(), e.getMessage().concat(e.getUnderlyingLdapReasons()));
                 printView(Views.USER_EDIT_VIEW);
@@ -57,12 +52,7 @@ public class SaveUserAction extends AbstractPageAction {
             MessageHelper.addSuccessAttribute(getThymeleafContext(), "user.saved");
             printView(Views.USER_TABLE_VIEW);
         } else {
-            setModelVariable(Views.USER_VAR, new LdapUserDto(user));
-            addRegionalDataToModel(getCurrentUser(), user);
-
-            if (user.isUiEdit()) {
-                setModelVariable(UI_EDIT, true);
-            }
+            addUserSpecificVariablesToModel(user);
 
             for (LdapValidatorError error : errors) {
                 // TODO: multiple errors
@@ -74,6 +64,14 @@ public class SaveUserAction extends AbstractPageAction {
 
     public void setValidator(LdapUserValidator validator) {
         this.validator = validator;
+    }
+
+    private void addUserSpecificVariablesToModel(LdapUser user) {
+        setModelVariable(Views.USER_VAR, new LdapUserDto(user));
+        addRegionalDataToModel(getCurrentUser(), user);
+
+        setModelVariable(UI_EDIT, user.isUiEdit());
+        setModelVariable(USER_ADMIN_MODE, getCurrentUser().getRoles().contains(new LdapRole(StringUtils.EMPTY, StringUtils.EMPTY, true)));
     }
 
     private LdapUser mapParametersToUsers(Map<String, String[]> parametersMap) {
@@ -108,11 +106,12 @@ public class SaveUserAction extends AbstractPageAction {
                 case "uiEdit":
                     user.setUiEdit(entry.getValue()[0].equals("true"));
                     break;
-                case "nationalAdmin":
-                    user.getRoles().add(new LdapRole(null ,null, true));
-                    break;
-                case "nationalView":
-                    user.getRoles().add(new LdapRole(null ,null, false));
+                case "nationalRole":
+                    if (entry.getValue()[0].equals("UA")) {
+                        user.getRoles().add(new LdapRole(null, null, true));
+                    } else if (entry.getValue()[0].equals("V")) {
+                        user.getRoles().add(new LdapRole(null, null, false));
+                    }
                     break;
                 default:
                     parseUserRole(user, entry.getKey(), entry.getValue());

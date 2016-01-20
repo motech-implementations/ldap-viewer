@@ -37,6 +37,12 @@ $(document).ready( function () {
        "info": false
    });
 
+   $('#admin_table').DataTable({
+       "paging": false,
+       "info": false,
+       "searching": false
+   });
+
    $('#user_table tbody').on('click', 'td.details-control', function () {
         var tr = $(this).closest('tr');
         var row = table.row( tr );

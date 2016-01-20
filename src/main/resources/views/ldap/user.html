@@ -49,12 +49,23 @@
             <input type="tel" class="form-control" id="mobile" placeholder="Mobile phone number" th:name="mobile" th:value="${user.mobileNumber}"/>
         </div>
         <div class="form-group" th:if="${userAdminMode}">
-            <label for="nationalAdmin" th:utext="#{roles.nationalUserAdmin}"></label>
-            <input type="checkbox" class="form-control" id="nationalAdmin" th:name="nationalAdmin" th:value="nationalAdmin" th:checked="${user.nationalAdmin}"/>
-        </div>
-        <div class="form-group" th:if="${userAdminMode}">
-            <label for="nationalView" th:utext="#{roles.nationalView}"></label>
-            <input type="checkbox" class="form-control" id="nationalView" th:name="nationalView" th:value="nationalAdmin" th:checked="${user.nationalView}"/>
+            <label th:utext="#{roles.national}"></label>
+            <table id="admin_table" class="display">
+                <thead>
+                <tr>
+                    <th th:utext="#{role.national.admin}"></th>
+                    <th th:utext="#{role.national.view}"></th>
+                    <th th:utext="#{role.national.none}"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><input type="radio" th:name="nationalRole" th:value="UA" th:checked="${user.nationalAdmin}" /></td>
+                    <td><input type="radio" th:name="nationalRole" th:value="V" th:checked="${user.nationalView}" /></td>
+                    <td><input type="radio" th:name="nationalRole" th:value="N" /></td>
+                </tr>
+                </tbody>
+            </table>
         </div>
         <div class="form-group" th:if="${!uiEdit}">
             <label for="state" th:utext="#{user.state}"></label>
