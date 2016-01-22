@@ -19,7 +19,7 @@ $(document).ready( function () {
                 "className":      'details-control',
                 "orderable":      false,
                 "data":           '',
-                "defaultContent": '<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>'
+                "defaultContent": '<button type="button" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit</button>'
             },
             { "data": "username"},
             { "data": "name"},
