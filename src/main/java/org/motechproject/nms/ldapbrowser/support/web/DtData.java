@@ -1,5 +1,6 @@
 package org.motechproject.nms.ldapbrowser.support.web;
 
+import org.motechproject.nms.ldapbrowser.ldap.DistrictInfo;
 import org.motechproject.nms.ldapbrowser.ldap.apacheds.ApacheDsUser;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -7,11 +8,10 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.List;
 
 @XmlRootElement
-@XmlSeeAlso(ApacheDsUser.class)
+@XmlSeeAlso({ApacheDsUser.class, DistrictInfo.class})
 public class DtData<T> {
 
     private List<T> data;
-    //private int draw;
     private long recordsTotal;
     private int recordsFiltered;
 

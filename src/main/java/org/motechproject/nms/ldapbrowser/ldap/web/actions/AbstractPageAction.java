@@ -1,6 +1,7 @@
 package org.motechproject.nms.ldapbrowser.ldap.web.actions;
 
 import org.apache.commons.lang.StringUtils;
+import org.motechproject.nms.ldapbrowser.ldap.DistrictInfo;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUserService;
 import org.motechproject.nms.ldapbrowser.region.RegionService;
@@ -9,11 +10,10 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.WebContext;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -88,9 +88,45 @@ public abstract class AbstractPageAction implements IStreamingAction {
     }
 
     protected void addRegionalDataToModel(LdapUser currentUser, LdapUser editedUser) {
-        thymeleafContext.setVariable(STATES, regionService.availableStateNames());
-        thymeleafContext.setVariable(DISTRICTS, regionService.allAvailableDistrictInfo());
+        thymeleafContext.setVariable(STATES, filerStatesForUser(editedUser, regionService.availableStateNames()));
+        thymeleafContext.setVariable(DISTRICTS, filterDistrictsForUser(editedUser, regionService.allAvailableDistrictInfo()));
         thymeleafContext.setVariable(STATE_DISTRICTS, regionService.availableDistrictNames(getSelectedState(editedUser)));
+    }
+
+    private List<String> filerStatesForUser(LdapUser user, List<String> availableStates) {
+        if (StringUtils.isNotBlank(user.getDistrict())) {
+            // District-level user cannot be assigned state roles
+            return new ArrayList<>();
+        } else if (StringUtils.isNotBlank(user.getState())) {
+            // Just one state for state-level users
+            List<String> states = new ArrayList<>();
+            states.add(user.getState());
+            return states;
+        } else {
+            return availableStates;
+        }
+    }
+
+    private List<DistrictInfo> filterDistrictsForUser(LdapUser user, List<DistrictInfo> availableDistricts) {
+        if (StringUtils.isNotBlank(user.getDistrict())) {
+            // Just one district for district-level users
+            List<DistrictInfo> districts = new ArrayList<>();
+            districts.add(new DistrictInfo(user.getState(), user.getDistrict()));
+
+            return districts;
+        } else if (StringUtils.isNotBlank(user.getState())) {
+            // All districts from the state for state-level users
+            List<DistrictInfo> districts = new ArrayList<>();
+            for (DistrictInfo districtInfo : availableDistricts) {
+                if (districtInfo.getState().equals(user.getState())) {
+                    districts.add(districtInfo);
+                }
+            }
+
+            return districts;
+        } else {
+            return availableDistricts;
+        }
     }
 
     protected LdapUser getCurrentUser() {

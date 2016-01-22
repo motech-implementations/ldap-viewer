@@ -1,11 +1,17 @@
 package org.motechproject.nms.ldapbrowser.ldap;
 
+import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 import java.util.Objects;
 
-public class DistrictInfo {
+@XmlRootElement
+public class DistrictInfo implements Serializable {
 
     private String district;
     private String state;
+
+    public DistrictInfo() {
+    }
 
     public DistrictInfo(String state, String district) {
         this.state = state;

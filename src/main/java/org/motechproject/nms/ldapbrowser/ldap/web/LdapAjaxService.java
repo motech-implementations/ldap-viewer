@@ -1,5 +1,6 @@
 package org.motechproject.nms.ldapbrowser.ldap.web;
 
+import org.motechproject.nms.ldapbrowser.ldap.DistrictInfo;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUserService;
 import org.motechproject.nms.ldapbrowser.ldap.UsersQuery;
@@ -43,6 +44,16 @@ public class LdapAjaxService {
     @Produces(MediaType.APPLICATION_JSON)
     public JaxbList<String> getDistrictNamesForNewUser(@PathParam("stateName") String stateName) {
         return new JaxbList<>(regionService.availableDistrictNames(stateName));
+    }
+
+    @GET
+    @Path("/districts")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllDistrictNames() {
+        List<DistrictInfo> districts = regionService.allAvailableDistrictInfo();
+        DtData<DistrictInfo> dtData = new DtData<>(districts, districts.size());
+
+        return Response.ok(dtData).type(MediaType.APPLICATION_JSON).build();
     }
 
     @GET

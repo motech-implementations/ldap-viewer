@@ -22,6 +22,9 @@
         <!-- /* The message code is returned from the @Controller */ -->
         <div th:replace="fragments/alert :: alert (type=${#strings.toLowerCase(message.type)}, message=#{${message.message}})">&nbsp;</div>
     </th:block>
+    <script type="text/javascript" th:inline="javascript">
+      var availableRoles = /*[[${user.roles}]]*/;
+    </script>
     <form class="form-horizontal form-user" method="post" th:action="@{/plugin/nms-users/ldap/user}">
         <div class="form-group">
             <label for="username" th:utext="#{user.username}"></label><span> *</span>
@@ -48,6 +51,22 @@
             <label for="mobile" th:utext="#{user.mobile}"></label>
             <input type="tel" class="form-control" id="mobile" placeholder="Mobile phone number" th:name="mobile" th:value="${user.mobileNumber}"/>
         </div>
+        <div class="form-group" th:if="${!uiEdit}">
+            <label for="state" th:utext="#{user.state}"></label>
+            <select class="form-control" id="state" th:name="state">
+                <option th:if="${userAdminMode}" th:value="'National level'" th:text="'National level'"></option>
+                <option th:each="state: ${states}" th:value="${state}" th:text="${state}"
+                        th:attrappend="selected=${user.state == state ? 'true' : 'false'}"></option>
+            </select>
+        </div>
+        <div class="form-group" th:if="${!uiEdit}">
+            <label for="district" th:utext="#{user.district}"></label>
+            <select class="form-control" id="district" th:name="district">
+                <option th:each="district: ${stateDistricts}" th:value="${district}" th:text="${district}"
+                        th:attrappend="selected=${user.district == district ? 'true' : 'false'}"></option>
+            </select>
+        </div>
+        <input type="hidden" id="uiEdit" th:name="uiEdit" th:value="*{uiEdit}"/>
         <div class="form-group" th:if="${userAdminMode}">
             <label th:utext="#{roles.national}"></label>
             <table id="admin_table" class="display">
@@ -67,22 +86,6 @@
                 </tbody>
             </table>
         </div>
-        <div class="form-group" th:if="${!uiEdit}">
-            <label for="state" th:utext="#{user.state}"></label>
-            <select class="form-control" id="state" th:name="state">
-                <option th:if="${userAdminMode}" th:value="'National level'" th:text="'National level'"></option>
-                <option th:each="state: ${states}" th:value="${state}" th:text="${state}"
-                        th:attrappend="selected=${user.state == state ? 'true' : 'false'}"></option>
-            </select>
-        </div>
-        <div class="form-group" th:if="${!uiEdit}">
-            <label for="district" th:utext="#{user.district}"></label>
-            <select class="form-control" id="district" th:name="district">
-                <option th:each="district: ${stateDistricts}" th:value="${district}" th:text="${district}"
-                        th:attrappend="selected=${user.district == district ? 'true' : 'false'}"></option>
-            </select>
-        </div>
-        <input type="hidden" id="uiEdit" th:name="uiEdit" th:value="*{uiEdit}"/>
         <div class="form-group">
             <label th:utext="#{roles.state}"></label>
             <table id="states_table" class="display">

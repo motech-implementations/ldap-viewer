@@ -22,7 +22,8 @@ public class EditUserPageAction extends AbstractPageAction {
 
         setModelVariable(Views.USER_VAR, new LdapUserDto(editedUser));
         setModelVariable(UI_EDIT, true);
-        setModelVariable(USER_ADMIN_MODE, currentUser.getRoles().contains(new LdapRole(StringUtils.EMPTY, StringUtils.EMPTY, true)));
+        setModelVariable(USER_ADMIN_MODE, currentUser.getRoles().contains(new LdapRole(StringUtils.EMPTY, StringUtils.EMPTY, true)) &&
+                StringUtils.isBlank(editedUser.getDistrict()) && StringUtils.isBlank(editedUser.getState()));
         addRegionalDataToModel(currentUser, editedUser);
 
         printView(Views.USER_EDIT_VIEW);
