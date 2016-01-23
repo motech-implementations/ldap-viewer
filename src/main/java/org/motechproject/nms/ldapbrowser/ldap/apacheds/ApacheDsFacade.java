@@ -31,7 +31,6 @@ import org.motechproject.nms.ldapbrowser.ldap.ex.LdapWriteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -49,16 +48,11 @@ public class ApacheDsFacade implements LdapFacade {
     private EntryHelper entryHelper;
 
     @Override
-    public LdapUser findUser(String username) {
-        LdapConnection connection;
+    public LdapUser findUser(String username, String adminUsername, String password) {
+        LdapConnection connection = null;
 
         try {
-            connection = adminConnectionPool.getConnection();
-        } catch (LdapException e) {
-            throw new LdapAuthException("Unable to bind admin connection", e);
-        }
-
-        try {
+            connection = getConnectionForUser(adminUsername, password);
             EntryCursor cursor = entryHelper.searchForAdmins(connection);
 
             while (cursor.next()) {
@@ -72,29 +66,46 @@ public class ApacheDsFacade implements LdapFacade {
         } catch (LdapException | CursorException e) {
             throw new LdapAuthException("Unable to search for users in LDAP", e);
         } finally {
+            ConnectionUtils.unbind(connection);
+        }
+    }
+
+    @Override
+    public boolean isAdminUser(String username) {
+        LdapConnection connection = null;
+
+        try {
+            connection = adminConnectionPool.getConnection();
+            EntryCursor cursor = entryHelper.searchForAdmins(connection);
+
+            while (cursor.next()) {
+                Entry entry = cursor.get();
+                String ldapUserName = entryHelper.getUsername(entry);
+                if (username.equals(ldapUserName)) {
+                    ApacheDsUser user = entryHelper.buildUser(entry, entryHelper.getAllRolesCursor(connection));
+                    for (LdapRole role : user.getRoles()) {
+                        if (role.isAdmin()) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+
+            return false;
+        } catch (LdapException | CursorException e) {
+            throw new LdapAuthException("Unable to bind admin connection or verify user rights in LDAP", e);
+        } finally {
             ConnectionUtils.releaseConnection(adminConnectionPool, connection);
         }
     }
 
     @Override
-    public LdapUser findAndAuthenticate(String username, String password) {
-        ApacheDsUser user = (ApacheDsUser) findUser(username);
-        if (user != null && bindUnbindUser(user, password)) {
-            // authenticated
-            return user;
-        } else {
-            // can't auth or doesn't exist
-            return null;
-        }
-    }
-
-    @Override
     public void addLdapUserEntry(LdapUser user, String creatorUsername, String creatorPassword) {
-        ApacheDsUser creatorUser = getCurrentUser(creatorUsername);
         LdapConnection connection = null;
 
         try {
-            connection = ConnectionUtils.getConnectionAndBindUser(ldapHost, ldapPort, ldapUseSsl, creatorUser.getDn(), creatorPassword);
+            connection = getConnectionForUser(creatorUsername, creatorPassword);
 
             List<String> errorMessages = new ArrayList<>();
 
@@ -103,7 +114,7 @@ public class ApacheDsFacade implements LdapFacade {
             }
 
             Entry userEntry = entryHelper.userToEntry(user);
-            ApacheDsUser userPriorUpdate = (ApacheDsUser) findUser(user.getUsername());
+            ApacheDsUser userPriorUpdate = (ApacheDsUser) findUser(user.getUsername(), creatorUsername, creatorPassword);
             String userDn = userPriorUpdate != null ? userPriorUpdate.getDn().toString() :
                     entryHelper.buildUserDn(user.getUsername(), user.getState(), user.getDistrict());
 
@@ -195,11 +206,9 @@ public class ApacheDsFacade implements LdapFacade {
 
     @Override
     public List<LdapUser> getUsers(String adminUsername, String adminPassword) {
-        ApacheDsUser currentUser = getCurrentUser(adminUsername);
-
         LdapConnection connection = null;
         try {
-            connection = ConnectionUtils.getConnectionAndBindUser(ldapHost, ldapPort, ldapUseSsl, currentUser.getDn(), adminPassword);
+            connection = getConnectionForUser(adminUsername, adminPassword);
 
             return entryHelper.getAllUsers(connection);
         } catch (LdapException | CursorException e) {
@@ -211,15 +220,12 @@ public class ApacheDsFacade implements LdapFacade {
 
     @Override
     public void deleteUser(String username, String adminUsername, String adminPassword) {
-        ApacheDsUser currentUser = getCurrentUser(adminUsername);
-
         LdapConnection connection = null;
         try {
-            connection = ConnectionUtils.getConnectionAndBindUser(ldapHost, ldapPort, ldapUseSsl, currentUser.getDn(), adminPassword);
+            connection = getConnectionForUser(adminUsername, adminPassword);
 
             entryHelper.deleteUser(connection, username);
 
-            //TODO: Remove from role attributes
         } catch (LdapException | CursorException e) {
             throw new LdapReadException("User " + adminUsername + " failed to delete user", e);
         } finally {
@@ -230,28 +236,56 @@ public class ApacheDsFacade implements LdapFacade {
     @Override
     public LdapNetworkConnection getConnectionForUser(String username, String password) {
         return ConnectionUtils.getConnectionAndBindUser(ldapHost, ldapPort, ldapUseSsl,
-                ((ApacheDsUser) findUser(username)).getDn(), password);
+                getDnForUsername(username), password);
     }
 
-    private boolean bindUnbindUser(ApacheDsUser user, String password) {
-        LOG.debug("Trying to bind/unbind user {}", user.getUsername());
-        try (LdapConnection connection = new LdapNetworkConnection(ldapHost, ldapPort, ldapUseSsl)) {
-            connection.bind(user.getDn(), password);
-            connection.unBind();
-            LOG.debug("Successfully authenticated user: {}", user.getUsername());
-            return true;
-        } catch (IOException | LdapException e) {
-            LOG.warn("Unable to authenticate user", e);
-            return false;
+    @Override
+    public LdapUser getLoggedUser(String currentUsername) {
+        LdapConnection connection = null;
+
+        try {
+            connection = adminConnectionPool.getConnection();
+            EntryCursor cursor = entryHelper.searchForAdmins(connection);
+
+            while (cursor.next()) {
+                Entry entry = cursor.get();
+                String ldapUserName = entryHelper.getUsername(entry);
+                if (currentUsername.equals(ldapUserName)) {
+                    return entryHelper.buildUser(entry, entryHelper.getAllRolesCursor(connection));
+                }
+            }
+
+        } catch (LdapException | CursorException e) {
+            throw new LdapAuthException("Unable to get admin connection in LDAP", e);
+        } finally {
+            ConnectionUtils.releaseConnection(adminConnectionPool, connection);
         }
+
+        return null;
     }
 
-    private ApacheDsUser getCurrentUser(String username) {
-        ApacheDsUser currentUser = (ApacheDsUser) findUser(username);
-        if (currentUser == null) {
-            throw new LdapAuthException("Unable to find user: " + username);
+    private Dn getDnForUsername(String username) {
+        LdapConnection connection = null;
+
+        try {
+            connection = adminConnectionPool.getConnection();
+            EntryCursor cursor = entryHelper.searchForAdmins(connection);
+
+            while (cursor.next()) {
+                Entry entry = cursor.get();
+                String ldapUserName = entryHelper.getUsername(entry);
+                if (username.equals(ldapUserName)) {
+                    return entry.getDn();
+                }
+            }
+
+        } catch (LdapException | CursorException e) {
+            throw new LdapAuthException("Unable to get admin connection in LDAP", e);
+        } finally {
+            ConnectionUtils.releaseConnection(adminConnectionPool, connection);
         }
-        return currentUser;
+
+        return null;
     }
 
     private ResultCodeEnum executeModifyRequestAndHandleErrorMessages(LdapConnection connection, Dn dn, ModifyRequest request, List<String> errorMessages)

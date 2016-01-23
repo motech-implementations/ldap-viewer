@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface LdapFacade {
 
-    LdapUser findUser(String username);
+    LdapUser findUser(String username, String adminUsername, String adminPassword);
 
-    LdapUser findAndAuthenticate(String username, String password);
+    boolean isAdminUser(String username);
 
     void addLdapUserEntry(LdapUser user, String creatorUsername, String creatorPassword);
 
@@ -17,4 +17,6 @@ public interface LdapFacade {
     void deleteUser(String username, String adminUsername, String adminPassword);
 
     LdapNetworkConnection getConnectionForUser(String username, String password);
+
+    LdapUser getLoggedUser(String currentUsername);
 }

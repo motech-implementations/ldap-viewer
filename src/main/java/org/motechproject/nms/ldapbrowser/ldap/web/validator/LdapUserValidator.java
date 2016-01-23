@@ -33,8 +33,7 @@ public class LdapUserValidator {
         if (StringUtils.isNotBlank(user.getPassword()) && StringUtils.contains(user.getUsername(), user.getPassword())) {
            errors.add(new LdapValidatorError("password", "user.save.error.password.identical"));
         }
-        if (StringUtils.isNotBlank(user.getDistrict()) &&
-                (user.getRoles().size() == 1 && !user.getRoles().get(0).getDistrict().equals(user.getDistrict())) || user.getRoles().size() > 1) {
+        if (StringUtils.isNotBlank(user.getDistrict()) && user.getRoles().size() == 1 && !user.getRoles().get(0).getDistrict().equals(user.getDistrict())) {
             errors.add(new LdapValidatorError("districts", "user.save.error.district.roles"));
         }
         if (StringUtils.isNotBlank(user.getState())) {

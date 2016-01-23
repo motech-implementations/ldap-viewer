@@ -24,6 +24,7 @@
     </th:block>
     <script type="text/javascript" th:inline="javascript">
       var availableRoles = /*[[${user.roles}]]*/;
+      var adminRights = /*[[${adminRights}]]*/;
     </script>
     <form class="form-horizontal form-user" method="post" th:action="@{/plugin/nms-users/ldap/user}">
         <div class="form-group">
@@ -54,7 +55,7 @@
         <div class="form-group" th:if="${!uiEdit}">
             <label for="state" th:utext="#{user.state}"></label>
             <select class="form-control" id="state" th:name="state">
-                <option th:if="${userAdminMode}" th:value="'National level'" th:text="'National level'"></option>
+                <option th:if="${adminRights.nationalAdmin}" th:value="'National level'" th:text="'National level'"></option>
                 <option th:each="state: ${states}" th:value="${state}" th:text="${state}"
                         th:attrappend="selected=${user.state == state ? 'true' : 'false'}"></option>
             </select>
@@ -67,7 +68,7 @@
             </select>
         </div>
         <input type="hidden" id="uiEdit" th:name="uiEdit" th:value="*{uiEdit}"/>
-        <div class="form-group" th:if="${userAdminMode}">
+        <div class="form-group" th:if="${adminRights.nationalAdmin and adminRights.editNationalRoles}">
             <label th:utext="#{roles.national}"></label>
             <table id="admin_table" class="display">
                 <thead>
@@ -79,7 +80,7 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td><input type="radio" th:name="nationalRole" th:value="UA" th:checked="${user.nationalAdmin}" /></td>
+                    <td><input type="radio" th:disabled="${!adminRights.masterAdmin}" th:name="nationalRole" th:value="UA" th:checked="${user.nationalAdmin}" /></td>
                     <td><input type="radio" th:name="nationalRole" th:value="V" th:checked="${user.nationalView}" /></td>
                     <td><input type="radio" th:name="nationalRole" th:value="N" /></td>
                 </tr>
@@ -100,7 +101,7 @@
                 <tbody>
                     <tr th:each="state : ${states}">
                         <td th:text="${state}"></td>
-                        <td><input type="radio" th:name="${'role_state_' + state}" th:value="UA" th:checked="${#lists.contains(user.roles, 'UA-' + state)}" /></td>
+                        <td><input type="radio" th:disabled="${!adminRights.nationalAdmin}" th:name="${'role_state_' + state}" th:value="UA" th:checked="${#lists.contains(user.roles, 'UA-' + state)}" /></td>
                         <td><input type="radio" th:name="${'role_state_' + state}" th:value="V" th:checked="${#lists.contains(user.roles, 'V-' + state)}" /></td>
                         <td><input type="radio" th:name="${'role_state_' + state}" th:value="N" /></td>
                     </tr>
@@ -122,7 +123,7 @@
                 <tbody>
                     <tr th:each="info : ${districts}">
                         <td th:text="${info.district}"></td>
-                        <td><input type="radio" th:name="${'role_district_' + info.state + '__' + info.district}" th:value="UA" th:checked="${#lists.contains(user.roles, 'UA-' + info.state + '__' + info.district)}" /></td>
+                        <td><input type="radio" th:disabled="${!adminRights.nationalAdmin and !#lists.contains(adminRights.states, info.state)}" th:name="${'role_district_' + info.state + '__' + info.district}" th:value="UA" th:checked="${#lists.contains(user.roles, 'UA-' + info.state + '__' + info.district)}" /></td>
                         <td><input type="radio" th:name="${'role_district_' + info.state + '__' + info.district}" th:value="V" th:checked="${#lists.contains(user.roles, 'V-' + info.state + '__' + info.district)}" /></td>
                         <td><input type="radio" th:name="${'role_district_' + info.state + '__' + info.district}" th:value="N" /></td>
                     </tr>

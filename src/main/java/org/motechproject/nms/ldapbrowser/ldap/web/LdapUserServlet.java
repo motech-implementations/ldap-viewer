@@ -1,8 +1,6 @@
 package org.motechproject.nms.ldapbrowser.ldap.web;
 
 import org.apache.commons.io.IOUtils;
-import org.motechproject.nms.ldapbrowser.ldap.LdapRole;
-import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUserService;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.AbstractPageAction;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.get.CreateUserPageAction;
@@ -17,7 +15,6 @@ import org.pentaho.platform.util.beans.ActionHarness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.Authentication;
-import org.springframework.security.GrantedAuthority;
 import org.springframework.security.context.SecurityContext;
 import org.springframework.security.context.SecurityContextHolder;
 import org.thymeleaf.TemplateEngine;
@@ -103,13 +100,7 @@ public class LdapUserServlet extends HttpServlet {
             return false;
         }
 
-        LdapUser user = ldapUserService.getUser(auth.getName());
-        for (LdapRole role : user.getRoles()) {
-            if (role.isAdmin()) {
-                return true;
-            }
-        }
-        return false;
+        return ldapUserService.isAdminUser(auth.getName());
     }
 
     private void noAccessPage(HttpServletRequest req, HttpServletResponse resp, OutputStream out) throws Exception {

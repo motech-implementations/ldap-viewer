@@ -2,6 +2,8 @@ package org.motechproject.nms.ldapbrowser.ldap.web.actions;
 
 import org.apache.commons.lang.StringUtils;
 import org.motechproject.nms.ldapbrowser.ldap.DistrictInfo;
+import org.motechproject.nms.ldapbrowser.ldap.LdapAdminRights;
+import org.motechproject.nms.ldapbrowser.ldap.LdapRole;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUserService;
 import org.motechproject.nms.ldapbrowser.region.RegionService;
@@ -23,14 +25,13 @@ public abstract class AbstractPageAction implements IStreamingAction {
     private static final String DISTRICTS = "districts";
     private static final String STATE_DISTRICTS = "stateDistricts";
 
-    protected static final String USER_ADMIN_MODE = "userAdminMode";
+    protected static final String ADMIN_RIGHTS = "adminRights";
 
     private OutputStream outputStream;
     private TemplateEngine templateEngine;
     private WebContext thymeleafContext;
     private LdapUserService ldapUserService;
     private RegionService regionService;
-    private String currentUsername;
     private Map<String, String[]> parametersMap;
 
     @Override
@@ -57,10 +58,6 @@ public abstract class AbstractPageAction implements IStreamingAction {
 
     public void setRegionService(RegionService regionService) {
         this.regionService = regionService;
-    }
-
-    public void setCurrentUsername(String currentUsername) {
-        this.currentUsername = currentUsername;
     }
 
     protected OutputStream getOutputStream() {
@@ -129,8 +126,32 @@ public abstract class AbstractPageAction implements IStreamingAction {
         }
     }
 
+    protected void addCurrentUserAdminRightsToModel(LdapUser userInEdition) {
+        List<String> states = new ArrayList<>();
+
+        LdapUser currentUser = getCurrentUser();
+        boolean nationalAdmin = false;
+        boolean masterAdmin = false;
+        boolean editNationalRoles = false;
+
+        for (LdapRole role : currentUser.getRoles()) {
+            if (role.isMasterAdmin()) {
+                masterAdmin = true;
+                nationalAdmin = true;
+                editNationalRoles = StringUtils.isBlank(userInEdition.getState()) && StringUtils.isBlank(userInEdition.getDistrict());
+            } else if (role.isAdmin() && StringUtils.isBlank(role.getState()) && StringUtils.isBlank(role.getDistrict())) {
+                nationalAdmin = true;
+                editNationalRoles = StringUtils.isBlank(userInEdition.getState()) && StringUtils.isBlank(userInEdition.getDistrict());
+            } else if (role.isAdmin() && StringUtils.isNotBlank(role.getState()) && StringUtils.isBlank(role.getDistrict())) {
+                states.add(role.getState());
+            }
+        }
+
+        thymeleafContext.setVariable(ADMIN_RIGHTS, new LdapAdminRights(editNationalRoles, masterAdmin, nationalAdmin, states));
+    }
+
     protected LdapUser getCurrentUser() {
-        return ldapUserService.getUser(currentUsername);
+        return ldapUserService.getLoggedUser();
     }
 
     protected void setModelVariable(String varName, Object value) {

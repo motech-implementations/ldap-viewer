@@ -4,7 +4,9 @@ import java.util.List;
 
 public interface LdapUserService {
 
-    LdapUser authenticate(String username, String password);
+    boolean isAdminUser(String username);
+
+    LdapUser getLoggedUser();
 
     LdapUser getUser(String username);
 

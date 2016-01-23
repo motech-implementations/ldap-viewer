@@ -1,7 +1,5 @@
 package org.motechproject.nms.ldapbrowser.ldap.web.actions.get;
 
-import org.apache.commons.lang.StringUtils;
-import org.motechproject.nms.ldapbrowser.ldap.LdapRole;
 import org.motechproject.nms.ldapbrowser.ldap.LdapUser;
 import org.motechproject.nms.ldapbrowser.ldap.web.Views;
 import org.motechproject.nms.ldapbrowser.ldap.web.actions.AbstractPageAction;
@@ -17,7 +15,7 @@ public class CreateUserPageAction extends AbstractPageAction {
         LdapUser currentUser = getCurrentUser();
 
         setModelVariable(Views.USER_VAR, new LdapUserDto());
-        setModelVariable(USER_ADMIN_MODE, currentUser.getRoles().contains(new LdapRole(StringUtils.EMPTY, StringUtils.EMPTY, true)));
+        addCurrentUserAdminRightsToModel(editedUser);
         addRegionalDataToModel(currentUser, editedUser);
 
         printView(Views.USER_EDIT_VIEW);

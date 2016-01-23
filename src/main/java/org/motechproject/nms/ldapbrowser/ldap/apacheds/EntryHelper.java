@@ -43,6 +43,7 @@ public class EntryHelper {
 
     private static final int DISTRICT_DEPTH = 4;
 
+    private String masterAdminCn;
     private String rolesOu;
     private String usersOu;
     private String dc;
@@ -340,7 +341,9 @@ public class EntryHelper {
             Entry roleEntry = roleCursor.get();
             List<String> dns = userDnsFromRole(roleEntry);
 
-            if (dns.contains(dn)) {
+            if (roleEntry.getDn().toString().contains("cn=" + masterAdminCn) && dns.contains(dn)) {
+                user.getRoles().add(new LdapRole(null, null, true, true));
+            } else if (dns.contains(dn)) {
                 LdapLocation location = getLocationFromRoleRdns(roleEntry.getDn().getRdns());
                 user.getRoles().add(new LdapRole(location.getState(), location.getDistrict(), roleEntry.containsAttribute(memberAttrName)));
             }
@@ -435,6 +438,10 @@ public class EntryHelper {
 
     private String entryName(Entry entry) {
         return entry.getDn().getRdns().get(0).getValue();
+    }
+
+    public void setMasterAdminCn(String masterAdminCn) {
+        this.masterAdminCn = masterAdminCn;
     }
 
     public void setRolesOu(String rolesOu) {

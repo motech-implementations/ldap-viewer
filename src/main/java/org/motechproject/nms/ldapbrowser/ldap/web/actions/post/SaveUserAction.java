@@ -70,8 +70,8 @@ public class SaveUserAction extends AbstractPageAction {
         setModelVariable(Views.USER_VAR, new LdapUserDto(user));
         addRegionalDataToModel(getCurrentUser(), user);
 
+        addCurrentUserAdminRightsToModel(user);
         setModelVariable(UI_EDIT, user.isUiEdit());
-        setModelVariable(USER_ADMIN_MODE, getCurrentUser().getRoles().contains(new LdapRole(StringUtils.EMPTY, StringUtils.EMPTY, true)));
     }
 
     private LdapUser mapParametersToUsers(Map<String, String[]> parametersMap) {

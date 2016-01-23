@@ -22,6 +22,7 @@
     </bean>
 
     <bean id="entryHelper" class="org.motechproject.nms.ldapbrowser.ldap.apacheds.EntryHelper">
+        <property name="masterAdminCn" value="${ldap.cn.masterAdmin}"/>
         <property name="rolesOu" value="${ldap.ou.roles}"/>
         <property name="usersOu" value="${ldap.ou.users}"/>
         <property name="dc" value="${ldap.dc}"/>

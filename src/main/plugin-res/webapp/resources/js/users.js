@@ -133,15 +133,18 @@ $(document).ready( function () {
 } );
 
 function buildAdminRadioButtons(role) {
-    return '<input type="radio" name="nationalRole" value="' + role + '" />';
+    var disabled = (role === "UA" && !adminRights.masterAdmin) ? "disabled" : "";
+    return '<input type="radio" ' + disabled + ' name="nationalRole" value="' + role + '" />';
 }
 
 function buildStateRadioButtons(state, role) {
-    return '<input type="radio" name="role_state_' + state + '" value="' + role + '" />';
+    var disabled = (role === "UA" && !adminRights.nationalAdmin) ? "disabled" : "";
+    return '<input type="radio" ' + disabled + ' name="role_state_' + state + '" value="' + role + '" />';
 }
 
 function buildDistrictRadioButtons(state, district, role) {
-    return '<input type="radio" name="role_district_' + state + '__' + district + '}" value="' + role + '" />';
+    var disabled = (role === "UA" && !adminRights.nationalAdmin && !($.inArray(state, adminRights.states) > -1)) ? "disabled" : "";
+    return '<input type="radio" ' + disabled + ' name="role_district_' + state + '__' + district + '" value="' + role + '" />';
 }
 
 function deleteUser(username) {

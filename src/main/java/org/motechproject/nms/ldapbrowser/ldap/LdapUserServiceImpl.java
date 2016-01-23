@@ -13,13 +13,18 @@ public class LdapUserServiceImpl implements LdapUserService {
     private LdapFacade ldapFacade;
 
     @Override
-    public LdapUser authenticate(String username, String password) {
-        return ldapFacade.findAndAuthenticate(username, password);
+    public boolean isAdminUser(String username) {
+        return ldapFacade.isAdminUser(username);
+    }
+
+    @Override
+    public LdapUser getLoggedUser() {
+        return ldapFacade.getLoggedUser(getCurrentUsername());
     }
 
     @Override
     public LdapUser getUser(String username) {
-        return ldapFacade.findUser(username);
+        return ldapFacade.findUser(username, getCurrentUsername(), getCurrentPassword());
     }
 
     @Override
