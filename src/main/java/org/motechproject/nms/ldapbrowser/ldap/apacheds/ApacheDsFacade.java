@@ -178,17 +178,25 @@ public class ApacheDsFacade implements LdapFacade {
             // Roles remaining in lists must trigger udpates
             for (LdapRole role : user.getRoles()) {
                 // Roles present in new user object but not present in previous user object must be added
-                String roleDn = entryHelper.buildDn(role.getState(), role.getDistrict(), role.isAdmin() ? RoleType.USER_ADMIN : RoleType.VIEWER);
 
+                //Both User Admins and Viewers get the View role
+                String roleDn = entryHelper.buildDn(role.getState(), role.getDistrict(), RoleType.VIEWER);
                 ModifyRequest request = new ModifyRequestImpl();
-
-                Modification modification = new DefaultModification(ModificationOperation.ADD_ATTRIBUTE,
-                        entryHelper.getAttributeName(role.isAdmin() ? RoleType.USER_ADMIN : RoleType.VIEWER), userDn
+                Modification viewerModification = new DefaultModification(ModificationOperation.ADD_ATTRIBUTE,
+                        entryHelper.getAttributeName(RoleType.VIEWER), userDn
                 );
-
-                request.addModification(modification);
-
+                request.addModification(viewerModification);
                 resultCode = executeModifyRequestAndHandleErrorMessages(connection, new Dn(roleDn), request, errorMessages);
+
+                if (role.isAdmin()) {
+                    roleDn = entryHelper.buildDn(role.getState(), role.getDistrict(), RoleType.USER_ADMIN);
+                    request = new ModifyRequestImpl();
+                    Modification adminModification = new DefaultModification(ModificationOperation.ADD_ATTRIBUTE,
+                            entryHelper.getAttributeName(RoleType.USER_ADMIN), userDn
+                    );
+                    request.addModification(adminModification);
+                    executeModifyRequestAndHandleErrorMessages(connection, new Dn(roleDn), request, errorMessages);
+                }
             }
 
             if (resultCode != ResultCodeEnum.SUCCESS) {

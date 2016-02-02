@@ -12,6 +12,9 @@ import java.util.Objects;
 @XmlRootElement
 public class LdapUserDto {
 
+    private static final String USER_ADMIN_PREFIX = "UA-";
+    private static final String VIEWER_PREFIX = "V-";
+
     private String username;
     private String password;
     private String name;
@@ -56,9 +59,9 @@ public class LdapUserDto {
 
             StringBuilder sb = new StringBuilder();
             if (role.isAdmin()) {
-                sb.append("UA-");
+                sb.append(USER_ADMIN_PREFIX);
             } else {
-                sb.append("V-");
+                sb.append(VIEWER_PREFIX);
             }
             if (StringUtils.isNotBlank(role.getState())) {
                 sb.append(role.getState());
@@ -68,8 +71,18 @@ public class LdapUserDto {
                 sb.append(role.getDistrict());
             }
 
-            this.roles.add(sb.toString());
+            addRole(sb.toString());
         }
+    }
+
+    private void addRole(String role) {
+        if (role.startsWith(USER_ADMIN_PREFIX)) {
+            roles.remove(VIEWER_PREFIX + role.substring(USER_ADMIN_PREFIX.length()));
+        } else if (roles.contains(USER_ADMIN_PREFIX + role.substring(VIEWER_PREFIX.length()))) {
+            return;
+        }
+
+        roles.add(role);
     }
 
     public String getUsername() {
