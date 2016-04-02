@@ -51,7 +51,8 @@ public class LdapUserDto {
             if (StringUtils.isBlank(role.getDistrict()) && StringUtils.isBlank(role.getState())) {
                 if (role.isAdmin()) {
                     nationalAdmin = true;
-                } else {
+                    nationalView = false;
+                } else if (!nationalAdmin) {
                     nationalView = true;
                 }
                 continue;
